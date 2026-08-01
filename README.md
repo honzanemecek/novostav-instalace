@@ -1,15 +1,7 @@
-# payload-next-starter
+# Novostav - Instalace
 
-Personal starter template: Payload CMS 3 + Next.js (App Router), domain-driven
-structure, Czech-first bilingual (cs default, en at `/en`) with a translated
-admin, deployed on Vercel with Neon Postgres and Vercel Blob.
-
-## New project
-
-1. `gh repo create <name> --template <owner>/payload-next-starter --private --clone`
-2. Open the clone in Claude Code and run the **`/setup`** skill. It will
-   personalize the site, link Vercel, provision Neon + Blob, migrate + seed the
-   database, verify local dev, and deploy to production.
+Complete plumbing, heating and gas installations for new builds and
+renovations.
 
 ## Manual development (after setup)
 

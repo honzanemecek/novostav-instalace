@@ -1,11 +1,11 @@
-# Project
+# Novostav - Instalace
 
-<!-- Filled by /setup -->
-
-**Site name:** _not initialized_
-**Production domain:** _not initialized_
+**Site name:** Novostav - Instalace
+**Production domain:** novostav-instalace.cz
 
 ## What this project is
 
-<!-- /setup replaces this section with the project description you provide. -->
-_This clone has not been initialized. Run the `/setup` skill in Claude Code._
+Presentation website for Novostav - Instalace, a Czech company providing
+plumbing, heating and gas installations for new builds and renovations. Built
+on Payload CMS + Next.js, with Czech as the primary language and an English
+mutation.

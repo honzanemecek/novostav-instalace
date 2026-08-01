@@ -3,13 +3,13 @@
  * values when a new project is initialized — edit here, never inline.
  */
 export const siteConfig = {
-  name: 'My Site',
+  name: 'Novostav - Instalace',
   description: {
-    cs: 'Nový web postavený na Payload CMS a Next.js.',
-    en: 'A new website built with Payload CMS and Next.js.',
+    cs: 'Kompletní instalatérské práce pro novostavby i rekonstrukce — voda, topení, plyn.',
+    en: 'Complete plumbing, heating and gas installations for new builds and renovations.',
   },
   /** Production domain, no protocol, no trailing slash. */
-  domain: 'example.com',
+  domain: 'novostav-instalace.cz',
   /** Path under /public used as the default OpenGraph image. */
   ogImage: '/website-template-OG.webp',
 }
