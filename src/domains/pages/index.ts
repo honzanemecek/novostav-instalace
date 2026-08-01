@@ -1,0 +1,4 @@
+export { DynamicPage } from './pages/DynamicPage'
+export { getPageBySlug } from './queries/getPageBySlug'
+export { getPageSlugs } from './queries/getPageSlugs'
+export { getPagesSitemap } from './queries/getPagesSitemap'
