@@ -5,132 +5,186 @@ description: Use when designing or building any user-facing UI in this repo - pa
 
 # Frontend design for novostav-instalace.cz
 
-Presentation site for a Czech plumbing / heating / gas installation company
-(instalatérství, topení, plyn) working on new builds and renovations. The audience is
-homeowners, developers and builders — mostly on phones, often comparing two or three
-local firms. The job of every page is to answer *can these people do my job, have they
-done it before, and how do I reach them*.
+Presentation site for a Czech family building and installation firm — **not
+plumbing-only**: stavební práce, střechy, elektroinstalace, vodoinstalace, topení/plyn and
+podlahy, one contractor for a whole house. The audience is homeowners, developers and
+builders, mostly on phones, often comparing two or three local firms. Every page answers
+*can these people do my job, have they done it before, and how do I reach them*.
 
-Design target: **credible, calm, competent.** Not a SaaS landing page, not a brochure
-from 2011. Restrained motion, generous whitespace, real photography, no stock imagery of
-smiling people in hard hats.
+The design system is **„Bílá hala + Modrotisk"** — a cool white hall with a blueprint
+printed on it. Credible, calm, competent. A builder's site: motion reads as *solid*, not
+showy.
 
-## Non-negotiables
+## The nine system rules
 
-1. **Mobile first.** Design the 375px view before the 1440px one. Test at 375, 768, 1024,
-   1440.
-2. **Phone number and contact are always one tap away** — header, hero, footer, and the
-   end of every service section.
-3. **Real photos of real work.** The `old_website_photos/` directory is the source
-   material. A before/after (`ImageComparison`) beats a paragraph.
-4. **Czech copy is the primary copy.** English is a mutation, not the design driver.
-   Czech runs ~10–15% longer than English — never design a layout that only fits the
-   English string. Watch for diacritics clipping in tight line-heights.
-5. **Accessible by default**: semantic landmarks, one `<h1>` per page, visible focus
-   rings (`outline-ring/50` is already global), 4.5:1 text contrast, `alt` on every
-   meaningful image, ≥44px touch targets.
-6. **No layout shift.** Every image gets explicit dimensions or an aspect-ratio wrapper.
+These bind every component and every block. If a change breaks one of them, the change is
+wrong.
 
-## Use the token system, never literals
+1. **One type family.** IBM Plex Sans, nothing else.
+2. **Hairlines, never cards or shadows.** A 1px rule is the only divider in the system.
+3. **Exactly one `variant="accent"` per screen.** Second action `outline`, third `quiet`.
+4. **The phone number is the conversion** — always `tel:`, always tabular, always one tap
+   away.
+5. **At most two `<Slab>` per page** (three is the absolute ceiling).
+6. **Headings `line-height ≥ 1.16`, body `1.7`.** Czech diacritics over capitals need air.
+7. **Active link = a 2px accent rule under the text.**
+8. **No emoji.** Lucide icons only where they *do* something: phone, menu, close, arrow.
+   Decorative icons next to headings are out.
+9. **No invented data.** Every fact comes from the CMS. A missing photo renders the
+   `DuoPhoto` "Fotografii doplníme." state — never a stock image, never an empty hole.
 
-All colour, radius and font tokens live in `src/app/(frontend)/globals.css` — see the
-`shadcn` skill for how the layers work. In components:
+## Tokens — use them, never literals
 
-- `bg-background` / `text-foreground` for the page surface
-- `bg-card` / `text-card-foreground` for raised surfaces (this project's `--card` is
-  deliberately tinted in light mode — use it, don't fake it with `bg-gray-50`)
-- `text-muted-foreground` for secondary text
-- `border-border`, `ring-ring`, `bg-primary text-primary-foreground` for the main CTA
-- `--success` / `--warning` / `--error` for state
-- `rounded-lg` = `--radius` (0.625rem). Stay on the radius scale.
+All colour, radius and font tokens live in `src/app/(frontend)/globals.css`; the `shadcn`
+skill explains the layers. That file is authoritative — do not add colours to it.
 
-`bg-[#f5f5f5]`, `text-gray-700`, inline `style={{ color }}` — all wrong. They break dark
-mode, which this site ships (`[data-theme='dark']`, toggled by `ThemeSelector`).
-**Check every new screen in both themes before calling it done.**
+| Token | Role |
+|---|---|
+| `bg-background` / `text-foreground` | the cool white page and its ink |
+| `text-muted-foreground` | secondary text |
+| `text-accent` / `bg-accent` / `hover:bg-accent-hover` | steel blue: brand, links, the one action |
+| `.slab` + `bg-slab-foreground` / `text-slab-muted` / `border-slab-line` | the blue slab and everything on it |
+| `border-border` | hairlines |
+| `border-input` | form field edges |
+| `bg-card` | the only boxed surface in the system, and only twice in the whole design |
+| `--radius` | **0.1875rem (3px)** — `rounded-md`. Edges, not an app. |
 
-## Layout
+`bg-[#f5f5f5]`, `text-gray-700`, inline `style={{ color }}` — all wrong; they break dark
+mode, which this site ships (`[data-theme='dark']`). **Check every new screen in both
+themes before calling it done.** There is no theme toggle in the UI any more, so switch
+`data-theme` on `<html>` by hand to check. `InitTheme` must stay mounted in
+`(frontend)/layout.tsx` — `globals.css` ends with `html { opacity: 0 }`, unset only once
+`data-theme` lands on the root, so removing the initialiser blanks the site.
 
-- Use the project's `.container` utility (defined per breakpoint in `globals.css`), not
-  ad-hoc `max-w-*` + `mx-auto`.
-- The 12-column grid classes that are safelisted are `lg:col-span-{4,6,8,12}` — the
-  Content block builds on those. Any other dynamic span must be added to
-  `@source inline(...)`.
-- Vertical rhythm: sections separated by `py-16` on mobile, `py-24`+ on desktop.
-  `RenderBlocks` already wraps each block in `my-16` — don't double up.
-- Prefer `flex`/`grid` with `gap-*` over margins on children.
+### Two traps
+
+- **`--font-mono` is an alias for IBM Plex Sans.** It exists so legacy classes do not
+  break. **Never write `font-mono` in new code** — reproduce the artboards' "mono" details
+  with sans at the stated size, weight and tracking.
+- **`--font-display` is not a token at all.** Use `font-semibold`.
+
+## Vertical rhythm and full bleed
+
+`RenderBlocks` renders every block **bare** — no wrapper, no margin. Each block therefore
+owns:
+
+- its own `<section>`;
+- its own vertical rhythm, `py-14 md:py-[104px]`;
+- the decision whether it sits inside `.container` or bleeds to the window edges.
+
+Three section kinds exist: **contained**, **full-bleed slab** (`<Slab>`), and **full-bleed
+photo strip** (`DuoPhoto` on `.hairline-grid`). Use `.container` — never ad-hoc `max-w-* +
+mx-auto`; it already reproduces the design's 20px mobile / 56px desktop padding.
+
+`.blocks-inline` neutralises a block's own container and rhythm when blocks are nested
+inside a page column (the project story next to its facts rail).
+
+## The thirteen primitives
+
+Reach for these before writing markup. Ten are leaves, three are compositions of them.
+
+| Primitive | What it is |
+|---|---|
+| `Slab` | the blue full-bleed section. `pad="sm" \| "md" \| "lg"` |
+| `SectionHeader` | eyebrow / heading / lead. `align="stack" \| "split"`, plus an `action` slot for the trailing `RuleLink`. **`align="center"` does not exist** — a centred CTA sets its own `h2`. |
+| `TradeList` | numbered rows on hairlines. Six surfaces in the design run through it: homepage trades, the process slab, "Rozsah práce", the services index, "Často navazuje", "Kombinace řemesel". `columns`, `layout`, `numbered`, `headingAs`, `onSlab`, `showLinks`, `item.tags`, `item.meta`. |
+| `FactList` | `<dl>` of hairline rows, label → value. No blown-up numbers, no icons. |
+| `DuoPhoto` | every photograph. Duotone by default, `plain` for ordinary photos, and a `pending` state at the *same* aspect ratio so nothing shifts the day a photo lands. |
+| `RuleLink` | the "dál" link. A `border-bottom`, **not** the global `a` underline. |
+| `Tag` | `tone="muted"` spec chip (static) or `tone="accent"` trade link. Not interactive, no 44px target. |
+| `Chip` | the interactive selector: filters, the wizard's picker, trades on a project. Square, `min-h-11`. **No `rounded-full`** — that is the old system. |
+| `PhoneLink` | every phone number, at four sizes. `tel:` + tabular + no underline + **never animated**. |
+| `Breadcrumb` | service and project detail. |
+| `PageHero` | the opening of seven of the nine screens: eyebrow, h1, lead, actions, facts rail. |
+| `ProjectCard` | the portfolio card. `variant="full" \| "caption"`. No card, no radius, no hover scale. |
+| `ActionRow` | renders a Payload `linkGroup` and **mechanically enforces rule 3** — index 0 accent, 1 outline, 2+ quiet. |
+
+Plus one CSS utility, `.hairline-grid`: `grid; gap: 1px; background: var(--border)` with
+`bg-background` children — the hairline *is* the gap.
+
+**Never import `src/shared/ui/card.tsx`.** It is registry output so it stays installed, but
+rule 2 means nothing in this design may use it. A stray `rounded-lg` or `shadow-*` is the
+tell that a surface has not been migrated.
 
 ## Typography
 
-Geist Sans / Geist Mono via `--font-sans` / `--font-mono`. `@tailwindcss/typography` is
-installed and the `prose` sizes are tuned in `tailwind.config.mjs` (h1 2.5rem → 3.5rem at
-`md`). Base `@layer base` deliberately **unsets** heading font-size/weight, so headings
-get their size from utilities or `prose` — never assume a bare `<h2>` is styled.
+IBM Plex Sans via `next/font/google` with `latin-ext`, weights 400/500/600. `globals.css`
+sets the h1–h4 scale in `@layer base`, so a bare `<h2>` **is** styled — do not add sizes
+unless you mean to override.
 
-- One idea per heading; Czech headings are long, so cap at ~60 characters.
-- Body copy `max-w-prose`. Long lines are the fastest way to make a site feel amateur.
-- Numbers that matter (years in business, jobs completed, response time) deserve
-  typographic weight — that's what `AnimatedNumber` is for.
+- `.eyebrow` is the only place capitals appear: 11px / 600 / `.16em` / uppercase. It is a
+  class, not a component; there are 80 of them.
+- `.tabular` on every number that could change: phone, prices, counts.
+- Headings cap at ~22ch (`max-w-[22ch]`); leads at ~44ch; body at ~52–60ch.
+- Czech runs 10–15% longer than English — never design to the English string.
+- Rich text in heroes and CTAs passes `enableProse={false}`, so the global heading scale
+  wins over `prose`.
 
-## Page anatomy that works for this business
+## Page anatomy
 
-A service page or the homepage generally wants, in order:
+1. **`PageHero`** — eyebrow, h1, lead, one accent action, a `FactList` rail.
+2. **Trades** — `TradeList`, numbered, on hairlines. Not cards, not icons.
+3. **Proof** — `ProjectCard` grid, a full-bleed `photoStrip`, or `beforeAfter`.
+4. **Process** — `TradeList columns={4}` on a `<Slab>`; on mobile it collapses to a
+   `FactList`.
+5. **Trust** — the `brands` hairline marquee (names as text, no logos), `facts`.
+6. **FAQ** — `Accordion` with a `+` / `−` glyph. Not a rotating chevron, not a card.
+7. **Ask** — `cta` (plain centred, or on a slab) and the phone.
 
-1. **Hero** — what they do, where, and a phone/contact CTA. One sentence, one button.
-2. **Services** — 3–6 cards: voda / topení / plyn / rekonstrukce. Icon or photo, name,
-   one line, link.
-3. **Proof** — before/after slider, project gallery (`MorphingDialog` lightbox), or a
-   counted stat row.
-4. **Process** — 3–4 numbered steps (poptávka → návrh → realizace → servis). Removes the
-   biggest customer anxiety: not knowing how it goes.
-5. **Trust** — certifications, brands installed (`InfiniteSlider`), service area, IČO.
-6. **FAQ** — `Accordion`, real questions about price, timeline, warranty.
-7. **Contact** — form (forms domain) plus phone, e-mail, address, map link.
-
-Don't ship a section with no content behind it. An empty "Reference" section is worse
-than none.
+Don't ship a section with no content behind it. An empty "Reference" is worse than none.
 
 ## Components before custom markup
 
-Order of preference, always:
+1. A primitive from the table above.
+2. An existing block in `src/domains/*/blocks/`.
+3. A shadcn primitive from `@/shared/ui` (add via CLI — see the `shadcn` skill).
+4. A motion-primitive from `@/shared/ui/motion` (see the `motion` skill; most of them are
+   banned by this design — check there first).
+5. Something new, and then decide its home with the `architecture` skill.
 
-1. An existing block in `src/domains/pages/blocks/` or `posts/blocks/`.
-2. A shadcn primitive from `@/shared/ui` (add via CLI if missing — see the `shadcn` skill).
-3. A motion-primitive from `@/shared/ui/motion` (see the `motion` skill).
-4. A shared component in `@/shared/components` (`Media`, `RichText`, `Link`, `Pagination`).
-5. Something new — and then decide its home with the `architecture` skill.
+If the same visual appears twice, it's a component. If the client should be able to change
+it without a deploy, it's a **Payload field or block** — this is a CMS site.
 
-If the same visual appears twice, it's a component. If it's editor-configurable, it's a
-**Payload block**, not a hardcoded section — this is a CMS site, and the client must be
-able to change the words without a deploy.
+## Non-negotiables
+
+1. **Mobile first.** 375 before 1440. Test at 375, 768, 1024, 1440.
+2. **The phone is always one tap away** — header, `MobileBar`, footer, every wizard step.
+3. **Real photos of real work.** `old_website_photos/` is the source material. No stock.
+4. **Czech copy is the primary copy.** Use `localizeHref` / `LocalizedLink` for internal
+   links; never hand-concatenate `/en`.
+5. **Accessible by default**: semantic landmarks, one `<h1>` per page, visible focus rings
+   (never remove the `outline-2 outline-ring outline-offset-2`), 4.5:1 contrast, `alt` on
+   every meaningful image, ≥44px touch targets on anything interactive.
+6. **No layout shift.** Every image gets an aspect-ratio wrapper — including the `pending`
+   state.
 
 ## States
 
-Every list, form and async surface needs all four designed, not just the happy path:
-
-- **Loading** — skeletons that match the final layout, not a spinner in the middle.
-- **Empty** — say what's missing and what to do (Czech first).
+- **Loading** — skeletons matching the final layout, never a centred spinner.
+- **Empty** — say what is missing and what to do, in Czech, and name the thing that came up
+  empty ("Pro službu „Střechy" zatím nemáme…").
 - **Error** — plain language plus the phone number. Never a stack trace.
-- **Success** — form submissions confirm inline; don't navigate away.
+- **Success** — confirm inline; don't navigate away.
 
 ## Performance is a design constraint
 
-- LCP is almost always the hero image: `<Media priority />`, correct `sizes`, no entrance
-  animation on it.
-- Serve Payload media through `<Media />` (`@/shared/components/Media`), which handles the
-  resource shapes, sizes and video — not raw `<img>`.
-- Keep `'use client'` at the leaves. A page that ships the whole tree to the client feels
-  slow on the 4G connection a customer is standing on site with.
-- Fonts are already self-hosted via `geist`. Don't add a second family.
+- LCP is the hero photograph or the hero `h1`. **Never animate it in.** `<Media priority />`
+  with correct `sizes`.
+- Serve Payload media through `DuoPhoto` or `<Media />`, never a raw `<img>`.
+- Keep `'use client'` at the leaves. Marking a page client to get one reveal is not a trade.
+- The `brands` marquee is the only continuously animating element on the site.
 
 ## Review checklist before calling a screen done
 
-- [ ] 375 / 768 / 1440 all correct, nothing overflows horizontally
-- [ ] Light **and** dark theme checked
-- [ ] Czech copy in place (not lorem, not English) and not clipped
-- [ ] Contact path reachable from this screen
+- [ ] 375 / 768 / 1440 correct, nothing overflows horizontally
+- [ ] Light **and** dark theme checked (`data-theme` by hand — there is no toggle)
+- [ ] Exactly one accent action; at most two slabs
+- [ ] No `rounded-lg`, no `shadow-*`, no `rounded-full`, no `font-mono`
+- [ ] Czech copy in place and not clipped
+- [ ] Phone reachable from this screen
 - [ ] Keyboard-navigable, focus visible, headings in order
-- [ ] Images sized, `alt` written, no CLS
-- [ ] Colours/spacing/radius from tokens only
+- [ ] Images sized, `alt` written, no CLS — `pending` shares the aspect ratio
+- [ ] Colours / spacing / radius from tokens only
 - [ ] Motion follows the budget in the `motion` skill and respects reduced motion
 - [ ] Anything the client will want to edit is a Payload field, not hardcoded
-- [ ] `pnpm lint` clean
+- [ ] `npx tsc --noEmit` and `pnpm lint` clean
