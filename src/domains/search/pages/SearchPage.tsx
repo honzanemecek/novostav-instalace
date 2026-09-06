@@ -19,7 +19,7 @@ export async function SearchPage({
     <div className="pt-24 pb-24">
       <SearchPageClient />
       <div className="container mb-16">
-        <div className="prose dark:prose-invert max-w-none text-center">
+        <div className="prose max-w-none text-center">
           <h1 className="mb-8 lg:mb-16">Search</h1>
 
           <div className="max-w-[50rem] mx-auto">

@@ -20,7 +20,7 @@ export async function PostsArchivePage({
     <div className="pt-24 pb-24">
       <PostsArchivePageClient />
       <div className="container mb-16">
-        <div className="prose dark:prose-invert max-w-none">
+        <div className="prose max-w-none">
           <h1>Posts</h1>
         </div>
       </div>

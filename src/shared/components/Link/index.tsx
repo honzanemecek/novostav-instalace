@@ -5,7 +5,18 @@ import { cn } from '@/shared/utils/ui'
 import Link from 'next/link'
 import React from 'react'
 
-import type { Page, Post } from '@/payload/payload-types'
+import type { Page, Post, Project, Service } from '@/payload/payload-types'
+
+/**
+ * Route prefix per linkable collection. Keep in sync with the folders under
+ * src/app/(frontend) — a missing entry silently produces a 404 link.
+ */
+const collectionPrefixes = {
+  pages: '',
+  services: '/sluzby',
+  projects: '/realizace',
+  posts: '/posts',
+} as const
 
 export type CMSLinkType = {
   appearance?: 'inline' | ButtonProps['variant']
@@ -14,8 +25,8 @@ export type CMSLinkType = {
   label?: string | null
   newTab?: boolean | null
   reference?: {
-    relationTo: 'pages' | 'posts'
-    value: Page | Post | string | number
+    relationTo: keyof typeof collectionPrefixes
+    value: Page | Post | Project | Service | string | number
   } | null
   size?: ButtonProps['size'] | null
   type?: 'custom' | 'reference' | null
@@ -39,9 +50,7 @@ export const CMSLink: React.FC<CMSLinkType> = (props) => {
 
   const internalHref =
     type === 'reference' && typeof reference?.value === 'object' && reference.value.slug
-      ? `${reference?.relationTo !== 'pages' ? `/${reference?.relationTo}` : ''}/${
-          reference.value.slug
-        }`
+      ? `${collectionPrefixes[reference.relationTo] ?? ''}/${reference.value.slug}`
       : null
 
   const href = internalHref ? localize(internalHref) : url

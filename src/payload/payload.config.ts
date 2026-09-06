@@ -8,9 +8,12 @@ import { buildConfig, PayloadRequest } from 'payload'
 import { fileURLToPath } from 'url'
 
 import { Categories } from '@/domains/posts/collections/Categories'
+import { Company } from '@/domains/company/global'
 import { Media } from '@/domains/media/collection'
 import { Pages } from '@/domains/pages/collection'
 import { Posts } from '@/domains/posts/collections/Posts'
+import { Projects } from '@/domains/projects/collection'
+import { Services } from '@/domains/services/collection'
 import { Users } from '@/domains/users/collection'
 import { Footer } from '@/domains/layout/footer/config'
 import { Header } from '@/domains/layout/header/config'
@@ -68,7 +71,7 @@ export default buildConfig({
     },
     migrationDir: path.resolve(dirname, 'migrations'),
   }),
-  collections: [Pages, Posts, Media, Categories, Users],
+  collections: [Pages, Services, Projects, Posts, Media, Categories, Users],
   cors: [getServerSideURL()].filter(Boolean),
   i18n: {
     supportedLanguages: { cs, en },
@@ -97,10 +100,16 @@ export default buildConfig({
         pages: {
           enabled: true,
         },
+        services: {
+          enabled: true,
+        },
+        projects: {
+          enabled: true,
+        },
       },
     }),
   ],
-  globals: [Header, Footer],
+  globals: [Header, Footer, Company],
   secret: process.env.PAYLOAD_SECRET,
   sharp,
   typescript: {

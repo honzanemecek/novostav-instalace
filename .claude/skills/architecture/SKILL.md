@@ -11,8 +11,8 @@ description: Use when making structural changes in this repo - adding features, 
 src/
   app/        # Next.js routes ONLY — thin, no logic. Delegates to domain page components.
   domains/    # layout, pages, posts, media, users, search, forms — self-contained, deletable units
-  shared/     # ui/ (shadcn CLI output ONLY), components/, utils/, hooks/,
-              # config/ (site identity in config/site.ts)
+  shared/     # ui/ (registry CLI output ONLY; ui/motion/ = motion-primitives),
+              # components/, utils/, hooks/, config/ (site identity in config/site.ts)
   payload/    # payload.config.ts, payload-types.ts, fields/, access/, hooks/, plugins/,
               # components/ (admin-only UI), migrations/, seed/
 ```
@@ -66,12 +66,19 @@ Content-primitive blocks embeddable in rich text (Banner, Code, MediaBlock) live
 domain block must render inside rich text, the call site in that domain passes its
 converter via RichText's `blockConverters` prop — shared never references a domain.
 
-## shadcn workflow
+## shadcn / registry workflow
 
-- `shared/ui/` is EXCLUSIVELY shadcn CLI output. Add components with
-  `pnpm dlx shadcn add <component>` — never write or edit files there by hand.
+- `shared/ui/` is EXCLUSIVELY registry CLI output. Add components with
+  `pnpm dlx shadcn@latest add <component>` — never write or edit files there by hand.
+- `shared/ui/motion/` holds motion-primitives components
+  (`pnpm dlx shadcn@latest add @motion-primitives/<name>`). Same read-only rule; the
+  only sanctioned hand-edits are the React 19 / motion 13 compatibility fixes documented
+  in the `motion` skill.
+- Registries are declared in `components.json` under `registries`
+  (`@motion-primitives` → `https://motion-primitives.com/c/{name}.json`).
 - Theme via CSS variables in `src/app/(frontend)/globals.css`, not by editing generated files.
 - `components.json` aliases already target `@/shared/ui`, `@/shared/components`, `@/shared/utils/ui`.
+- Details: the `shadcn` skill (tokens, registries, CLI flags) and the `motion` skill.
 
 ## Where does new code go? (decision table)
 
@@ -84,6 +91,8 @@ converter via RichText's `blockConverters` prop — shared never references a do
 | A component used by 2+ domains, not domain-flavored | `shared/components/` |
 | A content-primitive block embeddable in rich text | `shared/components/RichText/blocks/` |
 | A shadcn primitive | `shared/ui/` via the CLI |
+| A motion-primitives component | `shared/ui/motion/` via the CLI |
+| An animated composition used by 2+ domains | `shared/components/` |
 | A pure helper / generic React hook | `shared/utils/` / `shared/hooks/` |
 | Admin-panel-only UI | `payload/components/` |
 | Plugin wiring for a domain-owned feature (forms, search) | that domain's `config.ts`, composed via `@/domains/<name>/config` in `payload/plugins/index.ts` |

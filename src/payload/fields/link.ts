@@ -75,7 +75,7 @@ export const link: LinkType = ({ appearances, disableLabel = false, overrides = 
         condition: (_, siblingData) => siblingData?.type === 'reference',
       },
       label: 'Document to link to',
-      relationTo: ['pages', 'posts'],
+      relationTo: ['pages', 'services', 'projects', 'posts'],
       required: true,
     },
     {
@@ -130,7 +130,10 @@ export const link: LinkType = ({ appearances, disableLabel = false, overrides = 
       admin: {
         description: 'Choose how the link should be rendered.',
       },
-      defaultValue: 'default',
+      // Must be one of the allowed appearances: restricting `appearances` to a
+      // set without 'default' would otherwise emit a Postgres enum that cannot
+      // hold its own column default.
+      defaultValue: appearanceOptionsToUse[0]?.value ?? 'default',
       options: appearanceOptionsToUse,
     })
   }

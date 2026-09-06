@@ -12,6 +12,8 @@ import {
 import { authenticated } from '@/payload/access/authenticated'
 import { authenticatedOrPublished } from '@/payload/access/authenticatedOrPublished'
 import { Banner } from '@/shared/components/RichText/blocks/Banner/config'
+import { BeforeAfter } from '@/shared/components/RichText/blocks/BeforeAfter/config'
+import { Gallery } from '@/shared/components/RichText/blocks/Gallery/config'
 import { Code } from '@/shared/components/RichText/blocks/Code/config'
 import { MediaBlock } from '@/shared/components/RichText/blocks/MediaBlock/config'
 import { generatePreviewPath } from '@/shared/utils/generatePreviewPath'
@@ -95,7 +97,7 @@ export const Posts: CollectionConfig<'posts'> = {
                   return [
                     ...rootFeatures,
                     HeadingFeature({ enabledHeadingSizes: ['h1', 'h2', 'h3', 'h4'] }),
-                    BlocksFeature({ blocks: [Banner, Code, MediaBlock] }),
+                    BlocksFeature({ blocks: [Banner, Code, MediaBlock, Gallery, BeforeAfter] }),
                     FixedToolbarFeature(),
                     InlineToolbarFeature(),
                     HorizontalRuleFeature(),

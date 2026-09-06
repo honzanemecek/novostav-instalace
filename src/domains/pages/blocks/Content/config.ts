@@ -1,11 +1,16 @@
 import type { Block, Field } from 'payload'
 
 import {
+  BlocksFeature,
   FixedToolbarFeature,
   HeadingFeature,
+  HorizontalRuleFeature,
   InlineToolbarFeature,
   lexicalEditor,
 } from '@payloadcms/richtext-lexical'
+
+import { BeforeAfter } from '@/shared/components/RichText/blocks/BeforeAfter/config'
+import { Gallery } from '@/shared/components/RichText/blocks/Gallery/config'
 
 import { link } from '@/payload/fields/link'
 
@@ -41,8 +46,10 @@ const columnFields: Field[] = [
         return [
           ...rootFeatures,
           HeadingFeature({ enabledHeadingSizes: ['h2', 'h3', 'h4'] }),
+          BlocksFeature({ blocks: [Gallery, BeforeAfter] }),
           FixedToolbarFeature(),
           InlineToolbarFeature(),
+          HorizontalRuleFeature(),
         ]
       },
     }),

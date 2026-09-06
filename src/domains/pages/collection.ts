@@ -2,11 +2,7 @@ import type { CollectionConfig } from 'payload'
 
 import { authenticated } from '@/payload/access/authenticated'
 import { authenticatedOrPublished } from '@/payload/access/authenticatedOrPublished'
-import { ArchiveBlockConfig } from '@/domains/posts/config'
-import { CallToAction } from './blocks/CallToAction/config'
-import { Content } from './blocks/Content/config'
-import { FormBlockConfig } from '@/domains/forms/config'
-import { MediaBlock } from '@/shared/components/RichText/blocks/MediaBlock/config'
+import { pageLayoutBlocks } from '@/payload/blocks'
 import { hero } from './heros/config'
 import { slugField } from 'payload'
 import { populatePublishedAt } from '@/payload/hooks/populatePublishedAt'
@@ -78,7 +74,7 @@ export const Pages: CollectionConfig<'pages'> = {
             {
               name: 'layout',
               type: 'blocks',
-              blocks: [CallToAction, Content, MediaBlock, ArchiveBlockConfig, FormBlockConfig],
+              blocks: pageLayoutBlocks,
               required: true,
               admin: {
                 initCollapsed: true,

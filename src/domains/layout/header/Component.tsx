@@ -1,10 +1,15 @@
-import { HeaderClient } from './Component.client'
-import { getCachedGlobal } from '../queries/getGlobals'
 import React from 'react'
 import { type TypedLocale } from 'payload'
 
-export async function Header({ locale = 'cs' }: { locale?: TypedLocale } = {}) {
-  const headerData = await getCachedGlobal('header', 1, locale)()
+import { getCompany } from '@/domains/company'
+import { HeaderClient } from './Component.client'
+import { getCachedGlobal } from '../queries/getGlobals'
 
-  return <HeaderClient data={headerData} />
+export async function Header({ locale = 'cs' }: { locale?: TypedLocale } = {}) {
+  const [headerData, company] = await Promise.all([
+    getCachedGlobal('header', 1, locale)(),
+    getCompany(locale),
+  ])
+
+  return <HeaderClient data={headerData} phone={company.phone} />
 }

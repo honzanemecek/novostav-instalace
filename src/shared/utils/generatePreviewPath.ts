@@ -7,6 +7,8 @@ export type PreviewSearchParams = {
 
 const collectionPrefixMap: Partial<Record<CollectionSlug, string>> = {
   posts: '/posts',
+  projects: '/realizace',
+  services: '/sluzby',
   pages: '',
 }
 

@@ -14,5 +14,8 @@
     "components": "@/shared/components",
     "ui": "@/shared/ui",
     "utils": "@/shared/utils/ui"
+  },
+  "registries": {
+    "@motion-primitives": "https://motion-primitives.com/c/{name}.json"
   }
 }

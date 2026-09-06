@@ -1,5 +1,6 @@
 import type { CollectionSlug, GlobalSlug, Payload, PayloadRequest, File } from 'payload'
 
+import { company as companyData } from './company'
 import { contactForm as contactFormData } from './contact-form'
 import { contact as contactPageData } from './contact-page'
 import { home } from './home'
@@ -7,18 +8,22 @@ import { image1 } from './image-1'
 import { image2 } from './image-2'
 import { imageHero1 } from './image-hero-1'
 import { post1 } from './post-1'
+import { services as servicesData } from './services'
 
 const collections: CollectionSlug[] = [
   'categories',
   'media',
   'pages',
   'posts',
+  'projects',
+  'services',
   'forms',
   'form-submissions',
   'search',
 ]
 
-const globals: GlobalSlug[] = ['header', 'footer']
+/** Globals whose only content is a nav list — cleared by emptying `navItems`. */
+const navGlobals = ['header', 'footer'] as const satisfies readonly GlobalSlug[]
 
 const categories = ['News']
 
@@ -43,7 +48,7 @@ export const seed = async ({
 
   // clear the database
   await Promise.all(
-    globals.map((global) =>
+    navGlobals.map((global) =>
       payload.updateGlobal({
         slug: global,
         data: {
@@ -162,9 +167,21 @@ export const seed = async ({
     }),
   ])
 
+  payload.logger.info(`— Seeding services...`)
+
+  // Sequential: `order` decides how they render, and concurrent inserts make
+  // the created-at tiebreaker non-deterministic.
+  for (const service of servicesData) {
+    await payload.create({ collection: 'services', depth: 0, data: service })
+  }
+
   payload.logger.info(`— Seeding globals...`)
 
   await Promise.all([
+    payload.updateGlobal({
+      slug: 'company',
+      data: companyData,
+    }),
     payload.updateGlobal({
       slug: 'header',
       data: {

@@ -69,6 +69,8 @@ export interface Config {
   blocks: {};
   collections: {
     pages: Page;
+    services: Service;
+    projects: Project;
     posts: Post;
     media: Media;
     categories: Category;
@@ -92,6 +94,8 @@ export interface Config {
   };
   collectionsSelect: {
     pages: PagesSelect<false> | PagesSelect<true>;
+    services: ServicesSelect<false> | ServicesSelect<true>;
+    projects: ProjectsSelect<false> | ProjectsSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
@@ -115,10 +119,12 @@ export interface Config {
   globals: {
     header: Header;
     footer: Footer;
+    company: Company;
   };
   globalsSelect: {
     header: HeaderSelect<false> | HeaderSelect<true>;
     footer: FooterSelect<false> | FooterSelect<true>;
+    company: CompanySelect<false> | CompanySelect<true>;
   };
   locale: 'cs' | 'en';
   widgets: {
@@ -207,6 +213,14 @@ export interface Page {
                   value: number | Page;
                 } | null)
               | ({
+                  relationTo: 'services';
+                  value: number | Service;
+                } | null)
+              | ({
+                  relationTo: 'projects';
+                  value: number | Project;
+                } | null)
+              | ({
                   relationTo: 'posts';
                   value: number | Post;
                 } | null);
@@ -222,7 +236,25 @@ export interface Page {
       | null;
     media?: (number | null) | Media;
   };
-  layout: (CallToActionBlock | ContentBlock | MediaBlock | ArchiveBlock | FormBlock)[];
+  layout: (
+    | ContentBlock
+    | TextWithImageBlock
+    | MediaBlock
+    | GalleryBlock
+    | BeforeAfterBlock
+    | FeatureGridBlock
+    | StatsBlock
+    | ProcessBlock
+    | FAQBlock
+    | TestimonialsBlock
+    | BrandsBlock
+    | ServicesGridBlock
+    | ProjectShowcaseBlock
+    | ArchiveBlock
+    | CallToActionBlock
+    | ContactDetailsBlock
+    | FormBlock
+  )[];
   meta?: {
     title?: string | null;
     /**
@@ -243,29 +275,66 @@ export interface Page {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "posts".
+ * via the `definition` "services".
  */
-export interface Post {
+export interface Service {
   id: number;
   title: string;
-  heroImage?: (number | null) | Media;
-  content: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
-  relatedPosts?: (number | Post)[] | null;
-  categories?: (number | Category)[] | null;
+  icon?:
+    | (
+        | 'wrench'
+        | 'droplets'
+        | 'flame'
+        | 'zap'
+        | 'house'
+        | 'roof'
+        | 'layers'
+        | 'hammer'
+        | 'sun'
+        | 'thermometer'
+        | 'paintRoller'
+        | 'ruler'
+      )
+    | null;
+  /**
+   * Lower numbers come first.
+   */
+  order?: number | null;
+  /**
+   * One or two sentences for the service card.
+   */
+  shortDescription?: string | null;
+  image?: (number | null) | Media;
+  /**
+   * Bullets — concrete work, materials, brands.
+   */
+  highlights?:
+    | {
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Compose the page from blocks.
+   */
+  layout?:
+    | (
+        | ContentBlock
+        | TextWithImageBlock
+        | MediaBlock
+        | GalleryBlock
+        | BeforeAfterBlock
+        | FeatureGridBlock
+        | ProcessBlock
+        | FAQBlock
+        | TestimonialsBlock
+        | BrandsBlock
+        | ProjectShowcaseBlock
+        | CallToActionBlock
+        | ContactDetailsBlock
+        | FormBlock
+      )[]
+    | null;
   meta?: {
     title?: string | null;
     /**
@@ -275,13 +344,6 @@ export interface Post {
     description?: string | null;
   };
   publishedAt?: string | null;
-  authors?: (number | User)[] | null;
-  populatedAuthors?:
-    | {
-        id?: string | null;
-        name?: string | null;
-      }[]
-    | null;
   /**
    * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
@@ -412,6 +474,247 @@ export interface FolderInterface {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ContentBlock".
+ */
+export interface ContentBlock {
+  columns?:
+    | {
+        size?: ('oneThird' | 'half' | 'twoThirds' | 'full') | null;
+        richText?: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        } | null;
+        enableLink?: boolean | null;
+        link?: {
+          type?: ('reference' | 'custom') | null;
+          newTab?: boolean | null;
+          reference?:
+            | ({
+                relationTo: 'pages';
+                value: number | Page;
+              } | null)
+            | ({
+                relationTo: 'services';
+                value: number | Service;
+              } | null)
+            | ({
+                relationTo: 'projects';
+                value: number | Project;
+              } | null)
+            | ({
+                relationTo: 'posts';
+                value: number | Post;
+              } | null);
+          url?: string | null;
+          label: string;
+          /**
+           * Choose how the link should be rendered.
+           */
+          appearance?: ('default' | 'outline') | null;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'content';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "projects".
+ */
+export interface Project {
+  id: number;
+  /**
+   * Be concrete — "Bathroom renovation, Kladno" beats "Project 12".
+   */
+  title: string;
+  /**
+   * Used on the card and at the top of the page.
+   */
+  coverImage?: (number | null) | Media;
+  /**
+   * Two sentences for the project card.
+   */
+  summary?: string | null;
+  /**
+   * E.g. "Kladno".
+   */
+  location?: string | null;
+  completedAt?: string | null;
+  /**
+   * Label + value pairs, e.g. "Duration / 6 weeks".
+   */
+  facts?:
+    | {
+        label: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Compose the story — text, galleries, before/after.
+   */
+  layout?:
+    | (
+        | ContentBlock
+        | TextWithImageBlock
+        | MediaBlock
+        | GalleryBlock
+        | BeforeAfterBlock
+        | ProjectShowcaseBlock
+        | CallToActionBlock
+        | ContactDetailsBlock
+        | FormBlock
+      )[]
+    | null;
+  meta?: {
+    title?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+    description?: string | null;
+  };
+  /**
+   * Which trades this project shows. Drives filtering.
+   */
+  services?: (number | Service)[] | null;
+  /**
+   * Featured projects can be pulled onto the homepage.
+   */
+  featured?: boolean | null;
+  publishedAt?: string | null;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TextWithImageBlock".
+ */
+export interface TextWithImageBlock {
+  image: number | Media;
+  imagePosition?: ('left' | 'right') | null;
+  richText?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  links?:
+    | {
+        link: {
+          type?: ('reference' | 'custom') | null;
+          newTab?: boolean | null;
+          reference?:
+            | ({
+                relationTo: 'pages';
+                value: number | Page;
+              } | null)
+            | ({
+                relationTo: 'services';
+                value: number | Service;
+              } | null)
+            | ({
+                relationTo: 'projects';
+                value: number | Project;
+              } | null)
+            | ({
+                relationTo: 'posts';
+                value: number | Post;
+              } | null);
+          url?: string | null;
+          label: string;
+          /**
+           * Choose how the link should be rendered.
+           */
+          appearance?: ('default' | 'outline') | null;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'textWithImage';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "posts".
+ */
+export interface Post {
+  id: number;
+  title: string;
+  heroImage?: (number | null) | Media;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  relatedPosts?: (number | Post)[] | null;
+  categories?: (number | Category)[] | null;
+  meta?: {
+    title?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+    description?: string | null;
+  };
+  publishedAt?: string | null;
+  authors?: (number | User)[] | null;
+  populatedAuthors?:
+    | {
+        id?: string | null;
+        name?: string | null;
+      }[]
+    | null;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "categories".
  */
 export interface Category {
@@ -462,6 +765,106 @@ export interface User {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MediaBlock".
+ */
+export interface MediaBlock {
+  media: number | Media;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mediaBlock';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GalleryBlock".
+ */
+export interface GalleryBlock {
+  title?: string | null;
+  columns?: ('2' | '3' | '4') | null;
+  /**
+   * Drag to reorder. The phase renders as a badge on the photo.
+   */
+  items?:
+    | {
+        image: number | Media;
+        phase?: ('before' | 'during' | 'after') | null;
+        caption?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'gallery';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BeforeAfterBlock".
+ */
+export interface BeforeAfterBlock {
+  before: number | Media;
+  after: number | Media;
+  /**
+   * Both photos must share a viewpoint or the slider makes no sense.
+   */
+  caption?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'beforeAfter';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProjectShowcaseBlock".
+ */
+export interface ProjectShowcaseBlock {
+  /**
+   * Short label above the heading.
+   */
+  eyebrow?: string | null;
+  heading?: string | null;
+  /**
+   * One or two sentences under the heading.
+   */
+  lead?: string | null;
+  source?: ('featured' | 'latest' | 'service') | null;
+  limit?: number | null;
+  service?: (number | null) | Service;
+  links?:
+    | {
+        link: {
+          type?: ('reference' | 'custom') | null;
+          newTab?: boolean | null;
+          reference?:
+            | ({
+                relationTo: 'pages';
+                value: number | Page;
+              } | null)
+            | ({
+                relationTo: 'services';
+                value: number | Service;
+              } | null)
+            | ({
+                relationTo: 'projects';
+                value: number | Project;
+              } | null)
+            | ({
+                relationTo: 'posts';
+                value: number | Post;
+              } | null);
+          url?: string | null;
+          label: string;
+          /**
+           * Choose how the link should be rendered.
+           */
+          appearance?: 'outline' | null;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'projectShowcase';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "CallToActionBlock".
  */
 export interface CallToActionBlock {
@@ -491,6 +894,14 @@ export interface CallToActionBlock {
                 value: number | Page;
               } | null)
             | ({
+                relationTo: 'services';
+                value: number | Service;
+              } | null)
+            | ({
+                relationTo: 'projects';
+                value: number | Project;
+              } | null)
+            | ({
                 relationTo: 'posts';
                 value: number | Post;
               } | null);
@@ -510,97 +921,25 @@ export interface CallToActionBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ContentBlock".
+ * via the `definition` "ContactDetailsBlock".
  */
-export interface ContentBlock {
-  columns?:
-    | {
-        size?: ('oneThird' | 'half' | 'twoThirds' | 'full') | null;
-        richText?: {
-          root: {
-            type: string;
-            children: {
-              type: any;
-              version: number;
-              [k: string]: unknown;
-            }[];
-            direction: ('ltr' | 'rtl') | null;
-            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-            indent: number;
-            version: number;
-          };
-          [k: string]: unknown;
-        } | null;
-        enableLink?: boolean | null;
-        link?: {
-          type?: ('reference' | 'custom') | null;
-          newTab?: boolean | null;
-          reference?:
-            | ({
-                relationTo: 'pages';
-                value: number | Page;
-              } | null)
-            | ({
-                relationTo: 'posts';
-                value: number | Post;
-              } | null);
-          url?: string | null;
-          label: string;
-          /**
-           * Choose how the link should be rendered.
-           */
-          appearance?: ('default' | 'outline') | null;
-        };
-        id?: string | null;
-      }[]
-    | null;
+export interface ContactDetailsBlock {
+  /**
+   * Short label above the heading.
+   */
+  eyebrow?: string | null;
+  heading?: string | null;
+  /**
+   * One or two sentences under the heading.
+   */
+  lead?: string | null;
+  showPhone?: boolean | null;
+  showEmail?: boolean | null;
+  showAddress?: boolean | null;
+  showServiceArea?: boolean | null;
   id?: string | null;
   blockName?: string | null;
-  blockType: 'content';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "MediaBlock".
- */
-export interface MediaBlock {
-  media: number | Media;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'mediaBlock';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ArchiveBlock".
- */
-export interface ArchiveBlock {
-  introContent?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  populateBy?: ('collection' | 'selection') | null;
-  relationTo?: 'posts' | null;
-  categories?: (number | Category)[] | null;
-  limit?: number | null;
-  selectedDocs?:
-    | {
-        relationTo: 'posts';
-        value: number | Post;
-      }[]
-    | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'archive';
+  blockType: 'contactDetails';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -804,6 +1143,251 @@ export interface Form {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FeatureGridBlock".
+ */
+export interface FeatureGridBlock {
+  /**
+   * Short label above the heading.
+   */
+  eyebrow?: string | null;
+  heading?: string | null;
+  /**
+   * One or two sentences under the heading.
+   */
+  lead?: string | null;
+  columns?: ('2' | '3' | '4') | null;
+  items?:
+    | {
+        icon?:
+          | (
+              | 'wrench'
+              | 'droplets'
+              | 'flame'
+              | 'zap'
+              | 'house'
+              | 'roof'
+              | 'layers'
+              | 'hammer'
+              | 'sun'
+              | 'thermometer'
+              | 'paintRoller'
+              | 'ruler'
+            )
+          | null;
+        title: string;
+        description?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'featureGrid';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProcessBlock".
+ */
+export interface ProcessBlock {
+  /**
+   * Short label above the heading.
+   */
+  eyebrow?: string | null;
+  heading?: string | null;
+  /**
+   * One or two sentences under the heading.
+   */
+  lead?: string | null;
+  /**
+   * Numbers are generated from the order.
+   */
+  steps?:
+    | {
+        title: string;
+        description?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'process';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FAQBlock".
+ */
+export interface FAQBlock {
+  /**
+   * Short label above the heading.
+   */
+  eyebrow?: string | null;
+  heading?: string | null;
+  /**
+   * One or two sentences under the heading.
+   */
+  lead?: string | null;
+  /**
+   * Use real customer questions — price, timeline, warranty.
+   */
+  items?:
+    | {
+        question: string;
+        answer: string;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'faq';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TestimonialsBlock".
+ */
+export interface TestimonialsBlock {
+  /**
+   * Short label above the heading.
+   */
+  eyebrow?: string | null;
+  heading?: string | null;
+  /**
+   * One or two sentences under the heading.
+   */
+  lead?: string | null;
+  /**
+   * Real quotes from real customers only.
+   */
+  items?:
+    | {
+        quote: string;
+        author: string;
+        /**
+         * E.g. "flat renovation, Kladno 2024".
+         */
+        context?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'testimonials';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BrandsBlock".
+ */
+export interface BrandsBlock {
+  /**
+   * Short label above the heading.
+   */
+  eyebrow?: string | null;
+  heading?: string | null;
+  /**
+   * One or two sentences under the heading.
+   */
+  lead?: string | null;
+  /**
+   * A logo beats text. Without one the name is rendered.
+   */
+  items?:
+    | {
+        name: string;
+        logo?: (number | null) | Media;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'brands';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "StatsBlock".
+ */
+export interface StatsBlock {
+  /**
+   * Short label above the heading.
+   */
+  eyebrow?: string | null;
+  heading?: string | null;
+  /**
+   * One or two sentences under the heading.
+   */
+  lead?: string | null;
+  items?:
+    | {
+        value: number;
+        /**
+         * E.g. "+" or " years".
+         */
+        suffix?: string | null;
+        label: string;
+        /**
+         * Set a year (e.g. 1993) and the value is derived — it never goes stale.
+         */
+        autoYearsSince?: number | null;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'stats';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ServicesGridBlock".
+ */
+export interface ServicesGridBlock {
+  /**
+   * Short label above the heading.
+   */
+  eyebrow?: string | null;
+  heading?: string | null;
+  /**
+   * One or two sentences under the heading.
+   */
+  lead?: string | null;
+  source?: ('all' | 'selected') | null;
+  services?: (number | Service)[] | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'servicesGrid';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ArchiveBlock".
+ */
+export interface ArchiveBlock {
+  introContent?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  populateBy?: ('collection' | 'selection') | null;
+  relationTo?: 'posts' | null;
+  categories?: (number | Category)[] | null;
+  limit?: number | null;
+  selectedDocs?:
+    | {
+        relationTo: 'posts';
+        value: number | Post;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'archive';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
 export interface Redirect {
@@ -950,6 +1534,42 @@ export interface PayloadMcpApiKey {
      */
     delete?: boolean | null;
   };
+  services?: {
+    /**
+     * Allow clients to find services.
+     */
+    find?: boolean | null;
+    /**
+     * Allow clients to create services.
+     */
+    create?: boolean | null;
+    /**
+     * Allow clients to update services.
+     */
+    update?: boolean | null;
+    /**
+     * Allow clients to delete services.
+     */
+    delete?: boolean | null;
+  };
+  projects?: {
+    /**
+     * Allow clients to find projects.
+     */
+    find?: boolean | null;
+    /**
+     * Allow clients to create projects.
+     */
+    create?: boolean | null;
+    /**
+     * Allow clients to update projects.
+     */
+    update?: boolean | null;
+    /**
+     * Allow clients to delete projects.
+     */
+    delete?: boolean | null;
+  };
   updatedAt: string;
   createdAt: string;
   enableAPIKey?: boolean | null;
@@ -1078,6 +1698,14 @@ export interface PayloadLockedDocument {
         value: number | Page;
       } | null)
     | ({
+        relationTo: 'services';
+        value: number | Service;
+      } | null)
+    | ({
+        relationTo: 'projects';
+        value: number | Project;
+      } | null)
+    | ({
         relationTo: 'posts';
         value: number | Post;
       } | null)
@@ -1200,10 +1828,22 @@ export interface PagesSelect<T extends boolean = true> {
   layout?:
     | T
     | {
-        cta?: T | CallToActionBlockSelect<T>;
         content?: T | ContentBlockSelect<T>;
+        textWithImage?: T | TextWithImageBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
+        gallery?: T | GalleryBlockSelect<T>;
+        beforeAfter?: T | BeforeAfterBlockSelect<T>;
+        featureGrid?: T | FeatureGridBlockSelect<T>;
+        stats?: T | StatsBlockSelect<T>;
+        process?: T | ProcessBlockSelect<T>;
+        faq?: T | FAQBlockSelect<T>;
+        testimonials?: T | TestimonialsBlockSelect<T>;
+        brands?: T | BrandsBlockSelect<T>;
+        servicesGrid?: T | ServicesGridBlockSelect<T>;
+        projectShowcase?: T | ProjectShowcaseBlockSelect<T>;
         archive?: T | ArchiveBlockSelect<T>;
+        cta?: T | CallToActionBlockSelect<T>;
+        contactDetails?: T | ContactDetailsBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
       };
   meta?:
@@ -1219,30 +1859,6 @@ export interface PagesSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "CallToActionBlock_select".
- */
-export interface CallToActionBlockSelect<T extends boolean = true> {
-  richText?: T;
-  links?:
-    | T
-    | {
-        link?:
-          | T
-          | {
-              type?: T;
-              newTab?: T;
-              reference?: T;
-              url?: T;
-              label?: T;
-              appearance?: T;
-            };
-        id?: T;
-      };
-  id?: T;
-  blockName?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1272,10 +1888,220 @@ export interface ContentBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TextWithImageBlock_select".
+ */
+export interface TextWithImageBlockSelect<T extends boolean = true> {
+  image?: T;
+  imagePosition?: T;
+  richText?: T;
+  links?:
+    | T
+    | {
+        link?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              reference?: T;
+              url?: T;
+              label?: T;
+              appearance?: T;
+            };
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "MediaBlock_select".
  */
 export interface MediaBlockSelect<T extends boolean = true> {
   media?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GalleryBlock_select".
+ */
+export interface GalleryBlockSelect<T extends boolean = true> {
+  title?: T;
+  columns?: T;
+  items?:
+    | T
+    | {
+        image?: T;
+        phase?: T;
+        caption?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BeforeAfterBlock_select".
+ */
+export interface BeforeAfterBlockSelect<T extends boolean = true> {
+  before?: T;
+  after?: T;
+  caption?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FeatureGridBlock_select".
+ */
+export interface FeatureGridBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  heading?: T;
+  lead?: T;
+  columns?: T;
+  items?:
+    | T
+    | {
+        icon?: T;
+        title?: T;
+        description?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "StatsBlock_select".
+ */
+export interface StatsBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  heading?: T;
+  lead?: T;
+  items?:
+    | T
+    | {
+        value?: T;
+        suffix?: T;
+        label?: T;
+        autoYearsSince?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProcessBlock_select".
+ */
+export interface ProcessBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  heading?: T;
+  lead?: T;
+  steps?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FAQBlock_select".
+ */
+export interface FAQBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  heading?: T;
+  lead?: T;
+  items?:
+    | T
+    | {
+        question?: T;
+        answer?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TestimonialsBlock_select".
+ */
+export interface TestimonialsBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  heading?: T;
+  lead?: T;
+  items?:
+    | T
+    | {
+        quote?: T;
+        author?: T;
+        context?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BrandsBlock_select".
+ */
+export interface BrandsBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  heading?: T;
+  lead?: T;
+  items?:
+    | T
+    | {
+        name?: T;
+        logo?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ServicesGridBlock_select".
+ */
+export interface ServicesGridBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  heading?: T;
+  lead?: T;
+  source?: T;
+  services?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProjectShowcaseBlock_select".
+ */
+export interface ProjectShowcaseBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  heading?: T;
+  lead?: T;
+  source?: T;
+  limit?: T;
+  service?: T;
+  links?:
+    | T
+    | {
+        link?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              reference?: T;
+              url?: T;
+              label?: T;
+              appearance?: T;
+            };
+        id?: T;
+      };
   id?: T;
   blockName?: T;
 }
@@ -1295,6 +2121,45 @@ export interface ArchiveBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CallToActionBlock_select".
+ */
+export interface CallToActionBlockSelect<T extends boolean = true> {
+  richText?: T;
+  links?:
+    | T
+    | {
+        link?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              reference?: T;
+              url?: T;
+              label?: T;
+              appearance?: T;
+            };
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ContactDetailsBlock_select".
+ */
+export interface ContactDetailsBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  heading?: T;
+  lead?: T;
+  showPhone?: T;
+  showEmail?: T;
+  showAddress?: T;
+  showServiceArea?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "FormBlock_select".
  */
 export interface FormBlockSelect<T extends boolean = true> {
@@ -1303,6 +2168,100 @@ export interface FormBlockSelect<T extends boolean = true> {
   introContent?: T;
   id?: T;
   blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "services_select".
+ */
+export interface ServicesSelect<T extends boolean = true> {
+  title?: T;
+  icon?: T;
+  order?: T;
+  shortDescription?: T;
+  image?: T;
+  highlights?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  layout?:
+    | T
+    | {
+        content?: T | ContentBlockSelect<T>;
+        textWithImage?: T | TextWithImageBlockSelect<T>;
+        mediaBlock?: T | MediaBlockSelect<T>;
+        gallery?: T | GalleryBlockSelect<T>;
+        beforeAfter?: T | BeforeAfterBlockSelect<T>;
+        featureGrid?: T | FeatureGridBlockSelect<T>;
+        process?: T | ProcessBlockSelect<T>;
+        faq?: T | FAQBlockSelect<T>;
+        testimonials?: T | TestimonialsBlockSelect<T>;
+        brands?: T | BrandsBlockSelect<T>;
+        projectShowcase?: T | ProjectShowcaseBlockSelect<T>;
+        cta?: T | CallToActionBlockSelect<T>;
+        contactDetails?: T | ContactDetailsBlockSelect<T>;
+        formBlock?: T | FormBlockSelect<T>;
+      };
+  meta?:
+    | T
+    | {
+        title?: T;
+        image?: T;
+        description?: T;
+      };
+  publishedAt?: T;
+  generateSlug?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "projects_select".
+ */
+export interface ProjectsSelect<T extends boolean = true> {
+  title?: T;
+  coverImage?: T;
+  summary?: T;
+  location?: T;
+  completedAt?: T;
+  facts?:
+    | T
+    | {
+        label?: T;
+        value?: T;
+        id?: T;
+      };
+  layout?:
+    | T
+    | {
+        content?: T | ContentBlockSelect<T>;
+        textWithImage?: T | TextWithImageBlockSelect<T>;
+        mediaBlock?: T | MediaBlockSelect<T>;
+        gallery?: T | GalleryBlockSelect<T>;
+        beforeAfter?: T | BeforeAfterBlockSelect<T>;
+        projectShowcase?: T | ProjectShowcaseBlockSelect<T>;
+        cta?: T | CallToActionBlockSelect<T>;
+        contactDetails?: T | ContactDetailsBlockSelect<T>;
+        formBlock?: T | FormBlockSelect<T>;
+      };
+  meta?:
+    | T
+    | {
+        title?: T;
+        image?: T;
+        description?: T;
+      };
+  services?: T;
+  featured?: T;
+  publishedAt?: T;
+  generateSlug?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1696,6 +2655,22 @@ export interface PayloadMcpApiKeysSelect<T extends boolean = true> {
         update?: T;
         delete?: T;
       };
+  services?:
+    | T
+    | {
+        find?: T;
+        create?: T;
+        update?: T;
+        delete?: T;
+      };
+  projects?:
+    | T
+    | {
+        find?: T;
+        create?: T;
+        update?: T;
+        delete?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   enableAPIKey?: T;
@@ -1802,6 +2777,14 @@ export interface Header {
                 value: number | Page;
               } | null)
             | ({
+                relationTo: 'services';
+                value: number | Service;
+              } | null)
+            | ({
+                relationTo: 'projects';
+                value: number | Project;
+              } | null)
+            | ({
                 relationTo: 'posts';
                 value: number | Post;
               } | null);
@@ -1831,12 +2814,88 @@ export interface Footer {
                 value: number | Page;
               } | null)
             | ({
+                relationTo: 'services';
+                value: number | Service;
+              } | null)
+            | ({
+                relationTo: 'projects';
+                value: number | Project;
+              } | null)
+            | ({
                 relationTo: 'posts';
                 value: number | Post;
               } | null);
           url?: string | null;
           label: string;
         };
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "company".
+ */
+export interface Company {
+  id: number;
+  /**
+   * Shown in the header, footer and every call to action.
+   */
+  phone: string;
+  email: string;
+  /**
+   * One line next to the phone number. Keep it true.
+   */
+  availabilityNote?: string | null;
+  /**
+   * Leave empty until a profile actually exists.
+   */
+  social?:
+    | {
+        platform: 'facebook' | 'instagram' | 'youtube' | 'linkedin';
+        url: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Where customers actually come. This address drives the contact page and map.
+   */
+  office?: {
+    street?: string | null;
+    city?: string | null;
+    zip?: string | null;
+    /**
+     * Google/Mapy.cz link — opens in a new tab.
+     */
+    mapUrl?: string | null;
+    /**
+     * E.g. "Parador floor samples are on display in the office."
+     */
+    note?: string | null;
+  };
+  /**
+   * The legal seat. Belongs in the footer next to the IČO, not on the contact page.
+   */
+  registeredSeat?: {
+    street?: string | null;
+    city?: string | null;
+    zip?: string | null;
+  };
+  serviceArea?: string | null;
+  legalName?: string | null;
+  /**
+   * Years in business are derived from this — never hardcode them.
+   */
+  foundedYear?: number | null;
+  ico?: string | null;
+  dic?: string | null;
+  vatPayer?: boolean | null;
+  certifications?:
+    | {
+        title: string;
+        issuedBy?: string | null;
         id?: string | null;
       }[]
     | null;
@@ -1891,6 +2950,54 @@ export interface FooterSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "company_select".
+ */
+export interface CompanySelect<T extends boolean = true> {
+  phone?: T;
+  email?: T;
+  availabilityNote?: T;
+  social?:
+    | T
+    | {
+        platform?: T;
+        url?: T;
+        id?: T;
+      };
+  office?:
+    | T
+    | {
+        street?: T;
+        city?: T;
+        zip?: T;
+        mapUrl?: T;
+        note?: T;
+      };
+  registeredSeat?:
+    | T
+    | {
+        street?: T;
+        city?: T;
+        zip?: T;
+      };
+  serviceArea?: T;
+  legalName?: T;
+  foundedYear?: T;
+  ico?: T;
+  dic?: T;
+  vatPayer?: T;
+  certifications?:
+    | T
+    | {
+        title?: T;
+        issuedBy?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "collections_widget".
  */
 export interface CollectionsWidget {
@@ -1911,6 +3018,14 @@ export interface TaskSchedulePublish {
       | ({
           relationTo: 'pages';
           value: number | Page;
+        } | null)
+      | ({
+          relationTo: 'services';
+          value: number | Service;
+        } | null)
+      | ({
+          relationTo: 'projects';
+          value: number | Project;
         } | null)
       | ({
           relationTo: 'posts';
