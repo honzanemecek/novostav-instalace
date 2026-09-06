@@ -11,7 +11,7 @@ import type { Page, Post, Project, Service } from '@/payload/payload-types'
  * Route prefix per linkable collection. Keep in sync with the folders under
  * src/app/(frontend) — a missing entry silently produces a 404 link.
  */
-const collectionPrefixes = {
+export const collectionPrefixes = {
   pages: '',
   services: '/sluzby',
   projects: '/realizace',
@@ -39,8 +39,28 @@ export type CMSLinkType = {
     value: Page | Post | Project | Service | string | number
   } | null
   size?: ButtonProps['size'] | null
+  /** Tabular figures — for `tel:` links. */
+  phone?: boolean
+  /** Full width (mobile CTAs, the mobile menu). */
+  full?: boolean
   type?: 'custom' | 'reference' | null
   url?: string | null
+}
+
+/**
+ * The un-localised target of a CMS link — `/sluzby/strechy`, `tel:…`, `https://…`.
+ *
+ * Exported so the header can tell which nav item is the current page without
+ * rebuilding the prefix map (and drifting from it).
+ */
+export const cmsLinkHref = (
+  link?: Pick<CMSLinkType, 'type' | 'reference' | 'url'> | null,
+): string | null => {
+  if (!link) return null
+  if (link.type === 'reference' && typeof link.reference?.value === 'object' && link.reference.value.slug) {
+    return `${collectionPrefixes[link.reference.relationTo] ?? ''}/${link.reference.value.slug}`
+  }
+  return link.url ?? null
 }
 
 export const CMSLink: React.FC<CMSLinkType> = (props) => {
@@ -53,17 +73,18 @@ export const CMSLink: React.FC<CMSLinkType> = (props) => {
     newTab,
     reference,
     size: sizeFromProps,
+    phone,
+    full,
     url,
   } = props
 
   const localize = useLocalizeHref()
 
-  const internalHref =
-    type === 'reference' && typeof reference?.value === 'object' && reference.value.slug
-      ? `${collectionPrefixes[reference.relationTo] ?? ''}/${reference.value.slug}`
-      : null
-
-  const href = internalHref ? localize(internalHref) : url
+  // `localize` is identity for anything that is not a root-relative path, so
+  // `tel:`, `mailto:` and absolute URLs pass through untouched. Custom URLs used
+  // to skip it entirely, which pointed the whole /en navigation back into the
+  // Czech routes.
+  const href = localize(cmsLinkHref({ type, reference, url }) ?? '') || null
 
   if (!href) {
     // Unpopulated reference: render the bare content instead of silently
@@ -84,7 +105,7 @@ export const CMSLink: React.FC<CMSLinkType> = (props) => {
   /* Ensure we don't break any styles set by richText */
   if (appearance === 'inline') {
     return (
-      <Link className={cn(className)} href={href || url || ''} {...newTabProps}>
+      <Link className={cn(className)} href={href} {...newTabProps}>
         {label && label}
         {children && children}
       </Link>
@@ -92,8 +113,8 @@ export const CMSLink: React.FC<CMSLinkType> = (props) => {
   }
 
   return (
-    <Button asChild className={className} size={size} variant={variant}>
-      <Link className={cn(className)} href={href || url || ''} {...newTabProps}>
+    <Button asChild className={className} size={size} variant={variant} phone={phone} full={full}>
+      <Link className={cn(className)} href={href} {...newTabProps}>
         {label && label}
         {children && children}
       </Link>

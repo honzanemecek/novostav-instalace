@@ -1,8 +1,8 @@
 import type { Company } from '@/payload/payload-types'
 
-/** Digits-only form for `tel:` hrefs — "+420 602 323 095" → "+420602323095". */
-export const telHref = (phone?: string | null): string =>
-  phone ? `tel:${phone.replace(/[^\d+]/g, '')}` : ''
+// `telHref` lives in shared/ so `PhoneLink` can use it (shared/ may not import
+// domains/). Re-exported here so the company domain's public API is unchanged.
+export { telHref } from '@/shared/utils/tel'
 
 /** Years in the trade, derived from `foundedYear` so it is never stale. */
 export const yearsInBusiness = (foundedYear?: number | null): number | null =>

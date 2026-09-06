@@ -233,7 +233,7 @@
   .slab .hairline, .slab hr { @apply border-0 border-t border-slab-line; }
   /* Duotón: fotografie se tiskne do modři. Vždy na .slab podkladu. */
   .duotone { @apply relative overflow-hidden bg-slab; }
-  .duotone > img { @apply block size-full object-cover; mix-blend-mode: luminosity; filter: contrast(1.08); }
+  .duotone img { @apply block size-full object-cover; mix-blend-mode: luminosity; filter: contrast(1.08); }
   .duotone::after { content: ''; @apply absolute inset-0 bg-slab opacity-[0.26] pointer-events-none; }
   /* Štítek — jediné místo s verzálkami. */
   .eyebrow { @apply text-[0.6875rem] font-semibold leading-none tracking-[0.16em] uppercase text-muted-foreground; }
@@ -241,6 +241,9 @@
   /* Vlasová linka jako jediný dělič. */
   .hairline-top { @apply border-t border-border; }
   .hairline-bottom { @apply border-b border-border; }
+  /* Mřížka, kde je vlasová linka mezerou — celoplošné pásy fotografií. */
+  .hairline-grid { @apply grid gap-px bg-border; }
+  .hairline-grid > * { @apply bg-background; }
   /* Telefonní čísla vždy tabulárně. */
   .tabular { font-variant-numeric: tabular-nums; }
 }
