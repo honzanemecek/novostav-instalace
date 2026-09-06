@@ -3,30 +3,46 @@ import { Slot } from '@radix-ui/react-slot'
 import { type VariantProps, cva } from 'class-variance-authority'
 import * as React from 'react'
 
+/**
+ * Jediné tlačítko systému. `accent` smí být na obrazovce jedno.
+ * `phone` sází telefon s tabulárními číslicemi — vždy pro tel: odkazy.
+ */
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-[color,box-shadow] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 [&_svg]:shrink-0 ring-ring/10 dark:ring-ring/20 dark:outline-ring/40 outline-ring/50 focus-visible:ring-4 focus-visible:outline-1 aria-invalid:focus-visible:ring-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md border border-transparent text-[15px] font-semibold leading-none transition-[color,background-color,border-color] duration-150 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 [&_svg]:shrink-0 focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2",
   {
     variants: {
       variant: {
-        default: 'bg-primary text-primary-foreground shadow-sm hover:bg-primary/90',
-        destructive: 'bg-destructive text-destructive-foreground shadow-xs hover:bg-destructive/90',
-        outline:
-          'border border-input bg-background shadow-xs hover:bg-accent hover:text-accent-foreground',
-        secondary: 'bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80',
-        ghost: 'hover:bg-accent hover:text-accent-foreground',
-        link: 'text-primary underline-offset-4 hover:underline',
+        accent: 'bg-accent text-accent-foreground hover:bg-accent-hover',
+        ink: 'bg-primary text-primary-foreground hover:bg-primary/90',
+        outline: 'border-input bg-transparent text-foreground hover:border-foreground/40',
+        quiet: 'bg-transparent text-accent hover:text-accent-hover px-1 min-h-8',
+        onSlab: 'bg-slab-foreground text-slab hover:bg-slab-foreground/90',
+        onSlabOutline: 'border-slab-line bg-transparent text-slab-foreground hover:border-slab-foreground/60',
+        destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
+        secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
+        ghost: 'hover:bg-secondary',
       },
       size: {
         clear: '',
-        default: 'h-10 px-4 py-2 has-[>svg]:px-3',
-        sm: 'h-9 rounded-md px-3 has-[>svg]:px-2.5',
-        lg: 'h-11 rounded-md px-8 has-[>svg]:px-4',
-        icon: 'size-10',
+        sm: 'min-h-[38px] px-3.5 text-sm',
+        default: 'min-h-11 px-5',
+        lg: 'min-h-[52px] px-[26px] text-base',
+        icon: 'size-11',
+      },
+      phone: {
+        true: 'font-medium tabular-nums',
+        false: '',
+      },
+      full: {
+        true: 'w-full',
+        false: '',
       },
     },
     defaultVariants: {
-      variant: 'default',
+      variant: 'accent',
       size: 'default',
+      phone: false,
+      full: false,
     },
   },
 )
@@ -37,13 +53,12 @@ export interface ButtonProps
   asChild?: boolean
 }
 
-const Button: React.FC<ButtonProps> = ({ asChild = false, className, size, variant, ...props }) => {
+const Button: React.FC<ButtonProps> = ({ asChild = false, className, size, variant, phone, full, ...props }) => {
   const Comp = asChild ? Slot : 'button'
-
   return (
     <Comp
       data-slot="button"
-      className={cn(buttonVariants({ variant, size, className }))}
+      className={cn(buttonVariants({ variant, size, phone, full, className }))}
       {...props}
     />
   )

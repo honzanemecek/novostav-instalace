@@ -1,8 +1,7 @@
 import type { Metadata } from 'next'
 
 import { cn } from '@/shared/utils/ui'
-import { GeistMono } from 'geist/font/mono'
-import { GeistSans } from 'geist/font/sans'
+import { IBM_Plex_Sans } from 'next/font/google'
 import React from 'react'
 
 import { AdminBar } from '@/domains/users'
@@ -14,11 +13,19 @@ import { draftMode } from 'next/headers'
 import './globals.css'
 import { getServerSideURL } from '@/shared/utils/getURL'
 
+/** Jedna rodina písma na nadpisy, text, štítky i čísla. Latin-ext kvůli češtině. */
+const plexSans = IBM_Plex_Sans({
+  subsets: ['latin', 'latin-ext'],
+  weight: ['400', '500', '600'],
+  variable: '--font-plex-sans',
+  display: 'swap',
+})
+
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const { isEnabled } = await draftMode()
 
   return (
-    <html className={cn(GeistSans.variable, GeistMono.variable)} lang="cs" suppressHydrationWarning>
+    <html className={cn(plexSans.variable, 'font-sans')} lang="cs" suppressHydrationWarning>
       <head>
         <InitTheme />
         <link href="/favicon.ico" rel="icon" sizes="32x32" />
@@ -26,12 +33,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body>
         <Providers>
-          <AdminBar
-            adminBarProps={{
-              preview: isEnabled,
-            }}
-          />
-
+          <AdminBar adminBarProps={{ preview: isEnabled }} />
           {children}
         </Providers>
       </body>
@@ -42,8 +44,5 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 export const metadata: Metadata = {
   metadataBase: new URL(getServerSideURL()),
   openGraph: mergeOpenGraph(),
-  twitter: {
-    card: 'summary_large_image',
-    creator: '@payloadcms',
-  },
+  twitter: { card: 'summary_large_image' },
 }

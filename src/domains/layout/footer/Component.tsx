@@ -34,7 +34,7 @@ export async function Footer({ locale = 'cs' }: { locale?: TypedLocale } = {}) {
         <div className="flex flex-col gap-10 md:flex-row md:justify-between">
           <div className="flex flex-col gap-4">
             <Link className="flex items-center" href={localizeHref('/', locale)}>
-              <Logo />
+              <Logo variant="lockup" size={34} tone="onSlab" />
             </Link>
             <address className="flex flex-col gap-1 text-sm not-italic text-white/70">
               {company.phone && (

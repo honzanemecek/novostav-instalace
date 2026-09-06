@@ -18,8 +18,18 @@ const collectionPrefixes = {
   posts: '/posts',
 } as const
 
+/**
+ * The CMS stores `appearance` as 'default' | 'outline' (see payload/fields/link.ts)
+ * and the nav asks for 'link'. Those names predate the design-system rename, so they
+ * are translated to button variants here — the Postgres enum stays untouched.
+ */
+const variantForAppearance: Record<string, ButtonProps['variant']> = {
+  default: 'ink',
+  link: 'quiet',
+}
+
 export type CMSLinkType = {
-  appearance?: 'inline' | ButtonProps['variant']
+  appearance?: 'inline' | 'default' | 'link' | ButtonProps['variant']
   children?: React.ReactNode
   className?: string
   label?: string | null
@@ -66,7 +76,9 @@ export const CMSLink: React.FC<CMSLinkType> = (props) => {
     )
   }
 
-  const size = appearance === 'link' ? 'clear' : sizeFromProps
+  // `quiet` carries its own padding — a sized button would fight it.
+  const variant = (appearance && variantForAppearance[appearance]) ?? (appearance as ButtonProps['variant'])
+  const size = variant === 'quiet' ? 'clear' : sizeFromProps
   const newTabProps = newTab ? { rel: 'noopener noreferrer', target: '_blank' } : {}
 
   /* Ensure we don't break any styles set by richText */
@@ -80,7 +92,7 @@ export const CMSLink: React.FC<CMSLinkType> = (props) => {
   }
 
   return (
-    <Button asChild className={className} size={size} variant={appearance}>
+    <Button asChild className={className} size={size} variant={variant}>
       <Link className={cn(className)} href={href || url || ''} {...newTabProps}>
         {label && label}
         {children && children}

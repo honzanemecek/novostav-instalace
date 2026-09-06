@@ -36,7 +36,7 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data, phone }) => {
     <header className="container relative z-20   " {...(theme ? { 'data-theme': theme } : {})}>
       <div className="py-8 flex justify-between">
         <Link href={localizeHref('/')}>
-          <Logo loading="eager" priority="high" className="invert dark:invert-0" />
+          <Logo variant="lockup" size={36} />
         </Link>
         <HeaderNav data={data} phone={phone} />
       </div>
