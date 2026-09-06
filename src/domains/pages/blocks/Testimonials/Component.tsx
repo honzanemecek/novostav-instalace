@@ -4,22 +4,23 @@ import type { TestimonialsBlock as Props } from '@/payload/payload-types'
 
 import { SectionHeader } from '@/shared/components/SectionHeader'
 
+/** Reference na vlasových linkách — žádné karty, žádné uvozovkové ornamenty. */
 export const TestimonialsBlock: React.FC<Props> = ({ eyebrow, heading, lead, items }) => {
   if (!items?.length) return null
 
   return (
     <section className="container py-14 md:py-[104px]">
       <SectionHeader eyebrow={eyebrow} heading={heading} lead={lead} />
-      <ul className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <ul className="mt-12 grid gap-x-14 gap-y-[2px] md:grid-cols-2">
         {items.map((item, i) => (
-          <li key={item.id ?? i}>
-            <figure className="flex h-full flex-col gap-4 rounded-lg border border-border bg-card p-6">
-              <blockquote className="text-balance leading-relaxed">„{item.quote}“</blockquote>
-              <figcaption className="mt-auto text-sm">
-                <span className="font-medium">{item.author}</span>
-                {item.context && (
-                  <span className="block text-muted-foreground">{item.context}</span>
-                )}
+          <li key={item.id ?? i} className="border-t border-border pb-[30px] pt-[26px]">
+            <figure className="flex h-full flex-col">
+              <blockquote className="max-w-[52ch] text-base leading-[1.75]">
+                „{item.quote}“
+              </blockquote>
+              <figcaption className="mt-5 text-sm leading-[1.6]">
+                <span className="font-semibold">{item.author}</span>
+                {item.context && <span className="block text-muted-foreground">{item.context}</span>}
               </figcaption>
             </figure>
           </li>

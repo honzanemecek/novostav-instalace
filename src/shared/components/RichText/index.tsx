@@ -150,7 +150,7 @@ export default function RichText(props: Props) {
       mediaBlock: ({ node }) => (
         <MediaBlock
           className="col-start-1 col-span-3"
-          imgClassName="m-0 rounded-lg"
+          imgClassName="m-0"
           {...node.fields}
           captionClassName="mx-auto max-w-[48rem]"
           enableGutter={false}

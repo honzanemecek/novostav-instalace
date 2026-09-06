@@ -45,21 +45,21 @@ export const GalleryBlock: React.FC<Props & { className?: string }> = ({
   return (
     <section className={cn('not-prose', className)}>
       {title && <h3 className="mb-6 text-xl font-semibold tracking-tight">{title}</h3>}
-      <ul className={cn('grid gap-3', columnClasses[columns ?? '3'])}>
+      <ul className={cn('hairline-grid', columnClasses[columns ?? '3'])}>
         {photos.map((photo, i) => (
           <li key={photo.id ?? i}>
             <MorphingDialog
               transition={{ type: 'spring', stiffness: 260, damping: 30 }}
             >
-              <MorphingDialogTrigger className="group w-full overflow-hidden rounded-lg border border-border bg-card">
+              <MorphingDialogTrigger className="group w-full overflow-hidden bg-secondary">
                 <div className="relative aspect-[4/3] w-full overflow-hidden">
                   <MorphingDialogImage
                     src={photo.media.src}
                     alt={photo.caption || photo.media.alt}
-                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                    className="h-full w-full object-cover"
                   />
                   {photo.phase && (
-                    <span className="absolute left-2 top-2 rounded-full bg-background/85 px-2.5 py-1 text-xs font-medium backdrop-blur">
+                    <span className="eyebrow absolute left-3 top-3 bg-background/85 px-2.5 py-2 backdrop-blur">
                       {phaseLabels[photo.phase]}
                     </span>
                   )}
@@ -72,11 +72,11 @@ export const GalleryBlock: React.FC<Props & { className?: string }> = ({
               </MorphingDialogTrigger>
 
               <MorphingDialogContainer>
-                <MorphingDialogContent className="relative w-[92vw] max-w-4xl rounded-lg bg-background p-2">
+                <MorphingDialogContent className="relative w-[92vw] max-w-4xl bg-background p-2">
                   <MorphingDialogImage
                     src={photo.media.src}
                     alt={photo.caption || photo.media.alt}
-                    className="max-h-[80vh] w-full rounded object-contain"
+                    className="max-h-[80vh] w-full object-contain"
                   />
                   {photo.caption && (
                     <MorphingDialogSubtitle className="px-2 py-3 text-sm text-muted-foreground">
@@ -84,7 +84,7 @@ export const GalleryBlock: React.FC<Props & { className?: string }> = ({
                     </MorphingDialogSubtitle>
                   )}
                 </MorphingDialogContent>
-                <MorphingDialogClose className="fixed right-6 top-6 rounded-full bg-background p-2 text-foreground shadow-lg">
+                <MorphingDialogClose className="fixed right-6 top-6 border border-border bg-background p-2 text-foreground">
                   <XIcon aria-label="Zavřít" className="size-5" />
                 </MorphingDialogClose>
               </MorphingDialogContainer>

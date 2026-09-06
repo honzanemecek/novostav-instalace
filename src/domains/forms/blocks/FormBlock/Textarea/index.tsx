@@ -5,6 +5,7 @@ import { Label } from '@/shared/ui/label'
 import { Textarea as TextAreaComponent } from '@/shared/ui/textarea'
 import React from 'react'
 
+import { formFieldClasses } from '../fieldClasses'
 import { Error } from '../Error'
 import { Width } from '../Width'
 
@@ -28,6 +29,7 @@ export const Textarea: React.FC<
       </Label>
 
       <TextAreaComponent
+        className={formFieldClasses}
         defaultValue={defaultValue}
         id={name}
         rows={rows}

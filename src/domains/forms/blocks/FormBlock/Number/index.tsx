@@ -5,6 +5,7 @@ import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
 import React from 'react'
 
+import { formFieldClasses } from '../fieldClasses'
 import { Error } from '../Error'
 import { Width } from '../Width'
 export const Number: React.FC<
@@ -25,6 +26,7 @@ export const Number: React.FC<
         )}
       </Label>
       <Input
+        className={formFieldClasses}
         defaultValue={defaultValue}
         id={name}
         type="number"

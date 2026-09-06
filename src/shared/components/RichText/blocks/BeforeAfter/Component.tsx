@@ -26,33 +26,42 @@ export const BeforeAfterBlock: React.FC<Props & { className?: string }> = ({
 
   return (
     <figure className={cn('not-prose', className)}>
-      <ImageComparison
-        className="aspect-[3/2] w-full overflow-hidden rounded-lg border border-border"
-        enableHover
-        springOptions={{ bounce: 0, duration: 0 }}
-      >
-        <ImageComparisonImage
-          alt={beforeMedia.alt || 'Před'}
-          position="left"
-          src={beforeMedia.src}
-        />
-        <ImageComparisonImage
-          alt={afterMedia.alt || 'Po'}
-          position="right"
-          src={afterMedia.src}
-        />
-        <ImageComparisonSlider className="w-1 bg-background/90 backdrop-blur">
-          <div className="absolute left-1/2 top-1/2 flex size-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-background shadow-md">
-            <GripVertical aria-hidden className="size-4 text-foreground" />
-          </div>
-        </ImageComparisonSlider>
-      </ImageComparison>
-      <figcaption className="mt-3 flex items-center justify-between gap-4 text-sm text-muted-foreground">
-        <span>{caption}</span>
-        <span aria-hidden className="shrink-0">
-          Před ← → Po
+      <div className="relative">
+        {/* Štítky „Před“ a „Po“ leží na fotografii — čtenář nemusí hádat,
+            která polovina je která. */}
+        <span className="eyebrow absolute left-3 top-3 z-10 bg-background/85 px-2.5 py-2 backdrop-blur">
+          Před
         </span>
-      </figcaption>
+        <span className="eyebrow absolute right-3 top-3 z-10 bg-background/85 px-2.5 py-2 backdrop-blur">
+          Po
+        </span>
+        <ImageComparison
+          className="aspect-[3/2] w-full overflow-hidden border border-border"
+          enableHover
+          springOptions={{ bounce: 0, duration: 0 }}
+        >
+          <ImageComparisonImage
+            alt={beforeMedia.alt || 'Před'}
+            position="left"
+            src={beforeMedia.src}
+          />
+          <ImageComparisonImage
+            alt={afterMedia.alt || 'Po'}
+            position="right"
+            src={afterMedia.src}
+          />
+          <ImageComparisonSlider className="w-1 bg-background/90 backdrop-blur">
+            <div className="absolute left-1/2 top-1/2 flex size-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center border border-border bg-background">
+              <GripVertical aria-hidden className="size-4 text-foreground" />
+            </div>
+          </ImageComparisonSlider>
+        </ImageComparison>
+      </div>
+      {caption && (
+        <figcaption className="mt-3 text-sm leading-[1.7] text-muted-foreground">
+          {caption}
+        </figcaption>
+      )}
     </figure>
   )
 }

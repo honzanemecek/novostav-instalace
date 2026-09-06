@@ -36,7 +36,7 @@ const { company } = await import('../src/payload/seed/company')
 const { services } = await import('../src/payload/seed/services')
 
 /** Minimal lexical document: one heading plus paragraphs. */
-const richText = (heading: string, paragraphs: string[]) => ({
+const richText = (heading: string, paragraphs: string[], tag: 'h1' | 'h2' = 'h1') => ({
   root: {
     type: 'root',
     direction: 'ltr' as const,
@@ -46,7 +46,7 @@ const richText = (heading: string, paragraphs: string[]) => ({
     children: [
       {
         type: 'heading',
-        tag: 'h1',
+        tag,
         direction: 'ltr',
         format: '',
         indent: 0,
@@ -69,6 +69,28 @@ const richText = (heading: string, paragraphs: string[]) => ({
     ],
   },
 })
+
+/**
+ * `company` is a `Partial<Company>`, so every one of these can legitimately be
+ * missing. A fact with no value is not rendered at all rather than rendered
+ * empty — the site never states something it does not know.
+ */
+const serviceArea = company.serviceArea ?? ''
+const availability = company.availabilityNote ?? ''
+const officeLine = [company.office?.street, company.office?.city].filter(Boolean).join(', ')
+const seatLine = [
+  company.registeredSeat?.street,
+  [company.registeredSeat?.zip, company.registeredSeat?.city].filter(Boolean).join(' '),
+]
+  .filter(Boolean)
+  .join(', ')
+
+/** Kde pracujeme / kancelář / kdy voláte — sloupec faktů u hlavičky stránky. */
+const companyFacts = [
+  serviceArea ? { label: 'Kde pracujeme', value: serviceArea } : null,
+  officeLine ? { label: 'Kancelář', value: officeLine } : null,
+  availability ? { label: 'Kdy voláte', value: availability } : null,
+].filter((fact) => fact !== null)
 
 const payload = await getPayload({ config })
 
@@ -117,9 +139,16 @@ const homeData = {
   title: 'Domů',
   hero: {
     type: 'lowImpact' as const,
+    eyebrow: 'Rodinná firma od roku 1993',
     richText: richText('Stavíme, rekonstruujeme a instalujeme od roku 1993', [
       'Stavební práce, střechy, elektroinstalace, voda, topení i podlahy — jeden dodavatel na celý dům. Působíme v Praze a Středočeském kraji.',
     ]),
+    /*
+     * Klient si vymínil, že animovaná čísla na úvodu zůstanou (blok „stats“),
+     * takže „let v oboru“ a „řemesel“ nese ten blok a sloupec faktů je
+     * neopakuje — jinak by stránka řekla totéž dvakrát.
+     */
+    facts: companyFacts,
   },
   layout: [
     {
@@ -155,6 +184,14 @@ const homeData = {
       limit: 3,
     },
     {
+      // Bez fotek v CMS se vykreslí stav „Fotografii doplníme.“ ve stejném
+      // poměru stran — nikdy prázdná díra a nikdy stocková fotka.
+      blockType: 'photoStrip' as const,
+      source: 'latest' as const,
+      limit: '3' as const,
+      plain: true,
+    },
+    {
       blockType: 'brands' as const,
       eyebrow: 'Značky',
       heading: 'S čím pracujeme',
@@ -168,13 +205,10 @@ const homeData = {
       ],
     },
     {
-      blockType: 'contactDetails' as const,
-      eyebrow: 'Kontakt',
-      heading: 'Ozvěte se',
-      showPhone: true,
-      showEmail: true,
-      showAddress: true,
-      showServiceArea: true,
+      blockType: 'cta' as const,
+      variant: 'slab' as const,
+      richText: richText('Řekněte nám, co potřebujete', ['Ozveme se týž den. Prohlídka i nabídka jsou nezávazné.'], 'h2'),
+      links: [{ link: { type: 'custom' as const, label: 'Nezávazná poptávka', url: '/kontakt' } }],
     },
   ],
 }
@@ -187,15 +221,236 @@ if (homes.docs[0]) {
   payload.logger.info('  created homepage')
 }
 
+/**
+ * Upsert a page by slug. Never overwrites a page the client has since edited
+ * unless it is one this script owns (the homepage above is the exception, and
+ * it says so on the tin).
+ */
+const ensurePage = async (data: Record<string, unknown> & { slug: string }) => {
+  const found = await payload.find({
+    collection: 'pages',
+    depth: 0,
+    limit: 1,
+    pagination: false,
+    where: { slug: { equals: data.slug } },
+  })
+  if (found.docs[0]) {
+    payload.logger.info(`  ${data.slug} already exists — left alone`)
+    return found.docs[0].id
+  }
+  const created = await payload.create({ collection: 'pages', data: data as never, depth: 0, context })
+  payload.logger.info(`  created /${data.slug}`)
+  return created.id
+}
+
+payload.logger.info('— Inquiry form...')
+const forms = await payload.find({
+  collection: 'forms',
+  depth: 0,
+  limit: 1,
+  pagination: false,
+  where: { title: { equals: 'Poptávka' } },
+})
+
+/*
+ * The wizard block stores its answers under these exact names. They are fields
+ * on one form document; the wizard posts all four steps at once, at the end.
+ * None of them is `required` — the wizard validates before it submits, and a
+ * server-side required field the wizard cannot fill would deadlock it.
+ */
+const inquiryFields = [
+  { blockType: 'text', name: 'sluzby', label: 'Řemesla', width: 100 },
+  { blockType: 'text', name: 'misto', label: 'Místo', width: 50 },
+  { blockType: 'text', name: 'termin', label: 'Termín', width: 50 },
+  { blockType: 'textarea', name: 'zprava', label: 'Zpráva', width: 100 },
+  { blockType: 'text', name: 'jmeno', label: 'Jméno', width: 100 },
+  { blockType: 'text', name: 'telefon', label: 'Telefon', width: 50 },
+  { blockType: 'email', name: 'email', label: 'E-mail', width: 50 },
+]
+
+const inquiryFormData = {
+  title: 'Poptávka',
+  fields: inquiryFields,
+  confirmationType: 'message' as const,
+  confirmationMessage: richText('Máme to. Ozveme se vám.', [
+    'Poptávku jsme dostali a ozveme se týž den. Pokud to spěchá, zavolejte rovnou.',
+  ], 'h2'),
+  submitButtonLabel: 'Odeslat poptávku',
+}
+
+const inquiryFormId = forms.docs[0]
+  ? (await payload.update({
+      collection: 'forms',
+      id: forms.docs[0].id,
+      data: inquiryFormData as never,
+      depth: 0,
+      context,
+    })).id
+  : (await payload.create({ collection: 'forms', data: inquiryFormData as never, depth: 0, context })).id
+payload.logger.info(`  form "Poptávka" ready (${inquiryFormId})`)
+
+payload.logger.info('— Pages...')
+
+await ensurePage({
+  slug: 'kontakt',
+  _status: 'published',
+  title: 'Kontakt',
+  hero: {
+    type: 'lowImpact',
+    eyebrow: 'Kontakt',
+    richText: richText('Zavolejte, nebo napište', [
+      'Nemáme pevnou pracovní dobu — telefon bereme, kdykoli to jde. Prohlídka i nabídka jsou nezávazné.',
+    ]),
+  },
+  layout: [
+    {
+      blockType: 'contactDetails',
+      showPhone: true,
+      showEmail: true,
+      showAddress: true,
+      showServiceArea: true,
+      showBigPhone: true,
+      showMap: true,
+    },
+    {
+      blockType: 'inquiry',
+      eyebrow: 'Poptávka',
+      heading: 'Čtyři kroky, dvě minuty',
+      lead: 'Odpovědi nám stačí přibližné — zbytek doladíme po telefonu.',
+      form: inquiryFormId,
+    },
+  ],
+})
+
+await ensurePage({
+  slug: 'o-nas',
+  _status: 'published',
+  title: 'O nás',
+  hero: {
+    type: 'lowImpact',
+    eyebrow: 'O firmě',
+    richText: richText('Rodinná firma, která staví od roku 1993', [
+      'Vedeme stavby sami a koordinujeme jednotlivá řemesla, takže nemusíte shánět pět dodavatelů a hlídat, kdo na koho čeká.',
+    ]),
+    facts: companyFacts,
+  },
+  layout: [
+    { blockType: 'photoStrip', source: 'featured', limit: '3', plain: true },
+    // `facts` s autoFromCompany drží rok založení, roky praxe a plátcovství DPH
+    // na jednom místě — v globálu Firma, ne v textu stránky.
+    {
+      blockType: 'facts',
+      eyebrow: 'Čísla a fakta',
+      heading: 'Kdo jsme',
+      lead: 'Údaje se berou z firemního profilu, takže nikde nezestárnou.',
+      autoFromCompany: true,
+    },
+    {
+      blockType: 'faq',
+      eyebrow: 'Časté dotazy',
+      heading: 'Na co se ptáte nejčastěji',
+      anchor: 'caste-dotazy',
+      defaultOpenFirst: true,
+      items: [
+        {
+          question: 'Děláte i malé zakázky?',
+          answer:
+            'Ano. Vyměnit baterii i zrekonstruovat celý dům — rozsah práce nerozhoduje o tom, jestli se ozveme.',
+        },
+        {
+          question: 'Kolik to bude stát?',
+          answer:
+            'Cenu řekneme až po prohlídce. Nabídka je nezávazná a rozepsaná po položkách, ať víte, za co platíte.',
+        },
+        {
+          question: 'Kde všude pracujete?',
+          answer: `Působíme v oblasti: ${serviceArea}. Mimo ni se domluvíme podle rozsahu zakázky.`,
+        },
+        {
+          question: 'Zajistíte i papírování?',
+          answer:
+            'U větších akcí ano — od architektonického řešení po vyřízení formalit na úřadech.',
+        },
+      ],
+    },
+    {
+      blockType: 'cta',
+      variant: 'slab',
+      richText: richText('Máte podobný dům?', ['Řekněte nám, co potřebujete. Ozveme se týž den.'], 'h2'),
+      links: [{ link: { type: 'custom', label: 'Nezávazná poptávka', url: '/kontakt' } }],
+    },
+  ],
+})
+
+/*
+ * Ochrana osobních údajů vzniká jako **koncept**. Text zásad je právní
+ * dokument — vymyslet ho by bylo horší než ho nemít, a proto se stránka
+ * nezveřejňuje a nelinkuje z patičky, dokud ji klient nedoplní a nevydá.
+ */
+await ensurePage({
+  slug: 'ochrana-osobnich-udaju',
+  _status: 'draft',
+  title: 'Ochrana osobních údajů',
+  hero: {
+    type: 'lowImpact',
+    richText: richText('Ochrana osobních údajů', []),
+  },
+  layout: [
+    {
+      blockType: 'content',
+      columns: [
+        {
+          size: 'twoThirds',
+          richText: richText(
+            'Správce údajů',
+            [
+              `Správcem osobních údajů je ${company.legalName ?? ''}${seatLine ? `, ${seatLine}` : ''}.`,
+              'Doplňte prosím celé znění zásad zpracování osobních údajů a stránku poté vydejte. Do té doby zůstává jako koncept a v patičce se neobjeví.',
+            ],
+            'h2',
+          ),
+          enableLink: false,
+        },
+      ],
+    },
+  ],
+})
+
 payload.logger.info('— Navigation...')
 await payload.updateGlobal({
   slug: 'header',
   data: {
+    /*
+     * Pět položek. „Časté dotazy“ jsou kotva do /o-nas, ne vlastní stránka —
+     * jedna otázka a odpověď nezaslouží celou obrazovku.
+     */
     navItems: [
       { link: { type: 'custom', label: 'Služby', url: '/sluzby' } },
       { link: { type: 'custom', label: 'Realizace', url: '/realizace' } },
-      { link: { type: 'custom', label: 'Kontakt', url: '/contact' } },
+      { link: { type: 'custom', label: 'O nás', url: '/o-nas' } },
+      { link: { type: 'custom', label: 'Časté dotazy', url: '/o-nas#caste-dotazy' } },
+      { link: { type: 'custom', label: 'Kontakt', url: '/kontakt' } },
     ],
+    cta: [{ link: { type: 'custom', label: 'Poptávka', url: '/kontakt' } }],
+  },
+  context,
+})
+
+await payload.updateGlobal({
+  slug: 'footer',
+  data: {
+    tagline:
+      'Rodinná firma z Kladna. Stavby, střechy, elektro, voda, topení a podlahy — jeden dodavatel na celý dům.',
+    // Sloupec „Firma“. Sloupec „Služby“ se bere z kolekce služeb, aby patička
+    // nikdy nezaostávala za nabídkou.
+    navItems: [
+      { link: { type: 'custom', label: 'O nás', url: '/o-nas' } },
+      { link: { type: 'custom', label: 'Realizace', url: '/realizace' } },
+      { link: { type: 'custom', label: 'Časté dotazy', url: '/o-nas#caste-dotazy' } },
+      { link: { type: 'custom', label: 'Kontakt', url: '/kontakt' } },
+    ],
+    // legalLinks zůstávají prázdné, dokud nejsou zásady zpracování vydané.
+    legalLinks: [],
   },
   context,
 })
