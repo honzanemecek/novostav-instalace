@@ -2,18 +2,26 @@ import React from 'react'
 
 import type { ServicesGridBlock as Props } from '@/payload/payload-types'
 
+import { getProjectCountsByService } from '@/domains/projects'
 import { SectionHeader } from '@/shared/components/SectionHeader'
+import { TradeList } from '@/shared/components/TradeList/TradeList'
 import { getServices } from '../../queries/getServices'
-import { ServiceCard } from '../../ui/ServiceCard'
+import { serviceToTradeItem } from '../../ui/toTradeItems'
 
+/**
+ * Řemesla na vlasových linkách. Blok je jen mapovač dat — rozvržení nese
+ * `TradeList`, který obsluhuje i všechny ostatní řádkové plochy webu.
+ */
 export const ServicesGridBlock: React.FC<Props> = async ({
   eyebrow,
   heading,
   lead,
+  layout,
+  columns,
   source,
   services: selected,
 }) => {
-  const all = await getServices()
+  const [all, counts] = await Promise.all([getServices(), getProjectCountsByService()])
 
   const services =
     source === 'selected' && selected?.length
@@ -28,16 +36,18 @@ export const ServicesGridBlock: React.FC<Props> = async ({
 
   if (!services.length) return null
 
+  const rows = layout === 'rows'
+
   return (
     <section className="container py-14 md:py-[104px]">
-      <SectionHeader eyebrow={eyebrow} heading={heading} lead={lead} />
-      <ul className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {services.map((service) => (
-          <li key={service.id}>
-            <ServiceCard service={service} />
-          </li>
-        ))}
-      </ul>
+      <SectionHeader eyebrow={eyebrow} heading={heading} lead={lead} align={rows ? 'split' : 'stack'} />
+      <TradeList
+        className="mt-12"
+        items={services.map((service) => serviceToTradeItem(service, counts))}
+        layout={rows ? 'row' : 'column'}
+        columns={columns === '2' ? 2 : 3}
+        headingAs={rows ? 'h2' : 'h3'}
+      />
     </section>
   )
 }

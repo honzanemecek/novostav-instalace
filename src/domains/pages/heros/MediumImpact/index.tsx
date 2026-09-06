@@ -2,45 +2,26 @@ import React from 'react'
 
 import type { Page } from '@/payload/payload-types'
 
-import { CMSLink } from '@/shared/components/Link'
-import { Media } from '@/shared/components/Media'
-import RichText from '@/shared/components/RichText'
+import { DuoPhoto } from '@/shared/components/DuoPhoto/DuoPhoto'
+import { PageHero } from '@/shared/components/PageHero/PageHero'
+import { heroActions, heroContent, heroFacts } from '../shared/heroContent'
 
-export const MediumImpactHero: React.FC<Page['hero']> = ({ links, media, richText }) => {
-  return (
-    <div className="">
-      <div className="container mb-8">
-        {richText && <RichText className="mb-6" data={richText} enableGutter={false} />}
-
-        {Array.isArray(links) && links.length > 0 && (
-          <ul className="flex gap-4">
-            {links.map(({ link }, i) => {
-              return (
-                <li key={i}>
-                  <CMSLink {...link} />
-                </li>
-              )
-            })}
-          </ul>
-        )}
-      </div>
-      <div className="container ">
-        {media && typeof media === 'object' && (
-          <div>
-            <Media
-              className="-mx-4 md:-mx-8 2xl:-mx-16"
-              imgClassName=""
-              priority
-              resource={media}
-            />
-            {media?.caption && (
-              <div className="mt-3">
-                <RichText data={media.caption} enableGutter={false} />
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
+/** Hlavička plus pás fotografie přes celou šířku okna pod ní. */
+export const MediumImpactHero: React.FC<Page['hero']> = ({
+  eyebrow,
+  facts,
+  links,
+  media,
+  richText,
+}) => (
+  <>
+    <PageHero
+      eyebrow={eyebrow}
+      content={heroContent(richText)}
+      facts={heroFacts(facts)}
+      actions={heroActions(links)}
+      className="pb-10 md:pb-14"
+    />
+    <DuoPhoto plain resource={media} aspect="16 / 7" priority size="100vw" />
+  </>
+)

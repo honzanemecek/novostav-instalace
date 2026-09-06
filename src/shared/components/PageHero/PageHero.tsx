@@ -17,8 +17,10 @@ const railWidths: Record<Rail, string> = {
 
 type Props = {
   eyebrow?: string | null
-  heading: string
+  heading?: string | null
   lead?: string | null
+  /** Nadpis a perex z rich textu CMS — nahrazuje `heading` a `lead`. */
+  content?: React.ReactNode
   breadcrumb?: BreadcrumbItem[] | null
   /** Typicky `<ActionRow>`. */
   actions?: React.ReactNode
@@ -41,6 +43,7 @@ export const PageHero: React.FC<Props> = ({
   eyebrow,
   heading,
   lead,
+  content,
   breadcrumb,
   actions,
   facts,
@@ -63,8 +66,14 @@ export const PageHero: React.FC<Props> = ({
         <div>
           {breadcrumb?.length ? <Breadcrumb items={breadcrumb} className="mb-8" /> : null}
           {eyebrow && <p className="eyebrow mb-[18px] text-accent">{eyebrow}</p>}
-          <Heading className="max-w-[22ch]">{heading}</Heading>
-          {lead && <p className="mt-6 max-w-[44ch] text-[19px] leading-[1.7] text-muted-foreground">{lead}</p>}
+          {content ?? (
+            <>
+              {heading && <Heading className="max-w-[22ch]">{heading}</Heading>}
+              {lead && (
+                <p className="mt-6 max-w-[44ch] text-[19px] leading-[1.7] text-muted-foreground">{lead}</p>
+              )}
+            </>
+          )}
           {actions && <div className="mt-9">{actions}</div>}
         </div>
         {aside}

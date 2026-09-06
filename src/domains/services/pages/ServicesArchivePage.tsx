@@ -1,34 +1,40 @@
 import React from 'react'
 import type { TypedLocale } from 'payload'
 
+import { getProjectCountsByService } from '@/domains/projects'
+import { PageHero } from '@/shared/components/PageHero/PageHero'
+import { TradeList } from '@/shared/components/TradeList/TradeList'
 import { getServices } from '../queries/getServices'
-import { ServiceCard } from '../ui/ServiceCard'
+import { serviceToTradeItem } from '../ui/toTradeItems'
 
 export async function ServicesArchivePage({ locale = 'cs' }: { locale?: TypedLocale } = {}) {
-  const services = await getServices(locale)
+  const [services, counts] = await Promise.all([
+    getServices(locale),
+    getProjectCountsByService(locale),
+  ])
 
   return (
-    <div className="container py-16 md:py-24">
-      <header className="flex max-w-3xl flex-col gap-4">
-        <h1 className="text-4xl font-semibold tracking-tight md:text-5xl">Naše služby</h1>
-        <p className="text-lg text-muted-foreground">
-          Stavební práce, střechy, elektro, voda, topení i podlahy — jeden dodavatel na celý dům.
-        </p>
-      </header>
+    <article>
+      <PageHero
+        eyebrow="Co děláme"
+        heading="Naše služby"
+        lead="Stavební práce, střechy, elektro, voda, topení i podlahy — jeden dodavatel na celý dům."
+        className="pb-10 md:pb-14"
+      />
 
-      {services.length ? (
-        <ul className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {services.map((service) => (
-            <li key={service.id}>
-              <ServiceCard service={service} />
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p className="mt-12 text-muted-foreground">
-          Zatím zde nejsou žádné služby. Přidejte je v administraci.
-        </p>
-      )}
-    </div>
+      <section className="container pb-14 md:pb-[104px]">
+        {services.length ? (
+          <TradeList
+            items={services.map((service) => serviceToTradeItem(service, counts))}
+            layout="row"
+            headingAs="h2"
+          />
+        ) : (
+          <p className="text-muted-foreground">
+            Zatím zde nejsou žádné služby. Přidejte je v administraci.
+          </p>
+        )}
+      </section>
+    </article>
   )
 }

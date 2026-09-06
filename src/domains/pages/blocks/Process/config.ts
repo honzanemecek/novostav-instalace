@@ -12,6 +12,23 @@ export const Process: Block = {
   fields: [
     ...sectionHeaderFields(),
     {
+      name: 'variant',
+      type: 'radio',
+      label: { cs: 'Podklad', en: 'Ground' },
+      defaultValue: 'slab',
+      options: [
+        { label: { cs: 'Modrá plocha', en: 'Blue slab' }, value: 'slab' },
+        { label: { cs: 'Bílý podklad', en: 'Plain' }, value: 'plain' },
+      ],
+      admin: {
+        layout: 'horizontal',
+        description: {
+          cs: 'Na stránce mají být nejvýš dvě modré plochy. Pokud už jednu má, zvolte bílý podklad.',
+          en: 'At most two blue slabs per page. Use plain if the page already has them.',
+        },
+      },
+    },
+    {
       name: 'steps',
       type: 'array',
       label: { cs: 'Kroky', en: 'Steps' },

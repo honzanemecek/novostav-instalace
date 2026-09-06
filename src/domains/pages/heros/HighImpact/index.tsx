@@ -1,46 +1,33 @@
-'use client'
-import { useHeaderTheme } from '@/domains/layout/client'
-import React, { useEffect } from 'react'
+import React from 'react'
 
 import type { Page } from '@/payload/payload-types'
 
-import { CMSLink } from '@/shared/components/Link'
-import { Media } from '@/shared/components/Media'
-import RichText from '@/shared/components/RichText'
+import { DuoPhoto } from '@/shared/components/DuoPhoto/DuoPhoto'
+import { PageHero } from '@/shared/components/PageHero/PageHero'
+import { heroActions, heroContent, heroFacts } from '../shared/heroContent'
 
-export const HighImpactHero: React.FC<Page['hero']> = ({ links, media, richText }) => {
-  const { setHeaderTheme } = useHeaderTheme()
-
-  useEffect(() => {
-    setHeaderTheme('dark')
-  })
-
-  return (
-    <div
-      className="relative -mt-[10.4rem] flex items-center justify-center text-white"
-      data-theme="dark"
-    >
-      <div className="container mb-8 z-10 relative flex items-center justify-center">
-        <div className="max-w-[36.5rem] md:text-center">
-          {richText && <RichText className="mb-6" data={richText} enableGutter={false} />}
-          {Array.isArray(links) && links.length > 0 && (
-            <ul className="flex md:justify-center gap-4">
-              {links.map(({ link }, i) => {
-                return (
-                  <li key={i}>
-                    <CMSLink {...link} />
-                  </li>
-                )
-              })}
-            </ul>
-          )}
-        </div>
-      </div>
-      <div className="min-h-[80vh] select-none">
-        {media && typeof media === 'object' && (
-          <Media fill imgClassName="-z-10 object-cover" priority resource={media} />
-        )}
-      </div>
-    </div>
-  )
-}
+/**
+ * Nejsilnější otevření: hlavička a pod ní duotónová fotografie přes celou šířku.
+ *
+ * Fotografie je LCP — proto `priority` a **žádná animace při vstupu**. Hlavička
+ * na ní neleží: nová hlavička webu je vlasová linka na bílé, takže tu není co
+ * překlápět (dřívější `-mt-[10.4rem]` a `setHeaderTheme('dark')` jsou pryč).
+ */
+export const HighImpactHero: React.FC<Page['hero']> = ({
+  eyebrow,
+  facts,
+  links,
+  media,
+  richText,
+}) => (
+  <>
+    <PageHero
+      eyebrow={eyebrow}
+      content={heroContent(richText)}
+      facts={heroFacts(facts)}
+      actions={heroActions(links)}
+      className="pb-10 md:pb-14"
+    />
+    <DuoPhoto resource={media} aspect="16 / 7" priority size="100vw" />
+  </>
+)

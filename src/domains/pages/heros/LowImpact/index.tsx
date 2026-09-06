@@ -2,24 +2,15 @@ import React from 'react'
 
 import type { Page } from '@/payload/payload-types'
 
-import RichText from '@/shared/components/RichText'
+import { PageHero } from '@/shared/components/PageHero/PageHero'
+import { heroActions, heroContent, heroFacts } from '../shared/heroContent'
 
-type LowImpactHeroType =
-  | {
-      children?: React.ReactNode
-      richText?: never
-    }
-  | (Omit<Page['hero'], 'richText'> & {
-      children?: never
-      richText?: Page['hero']['richText']
-    })
-
-export const LowImpactHero: React.FC<LowImpactHeroType> = ({ children, richText }) => {
-  return (
-    <div className="container mt-16">
-      <div className="max-w-[48rem]">
-        {children || (richText && <RichText data={richText} enableGutter={false} />)}
-      </div>
-    </div>
-  )
-}
+/** Výchozí otevření stránky — jen text a sloupec faktů, žádná fotografie. */
+export const LowImpactHero: React.FC<Page['hero']> = ({ eyebrow, facts, links, richText }) => (
+  <PageHero
+    eyebrow={eyebrow}
+    content={heroContent(richText)}
+    facts={heroFacts(facts)}
+    actions={heroActions(links)}
+  />
+)

@@ -28,6 +28,23 @@ export const CallToAction: Block = {
       }),
       label: false,
     },
+    {
+      name: 'variant',
+      type: 'radio',
+      label: { cs: 'Podklad', en: 'Ground' },
+      defaultValue: 'plain',
+      options: [
+        { label: { cs: 'Bílý, na střed', en: 'Plain, centred' }, value: 'plain' },
+        { label: { cs: 'Modrá plocha', en: 'Blue slab' }, value: 'slab' },
+      ],
+      admin: {
+        layout: 'horizontal',
+        description: {
+          cs: 'Na stránce mají být nejvýš dvě modré plochy.',
+          en: 'At most two blue slabs per page.',
+        },
+      },
+    },
     linkGroup({
       appearances: ['default', 'outline'],
       overrides: {

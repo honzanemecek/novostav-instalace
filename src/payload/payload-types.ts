@@ -187,6 +187,10 @@ export interface Page {
   title: string;
   hero: {
     type: 'none' | 'highImpact' | 'mediumImpact' | 'lowImpact';
+    /**
+     * Short label above the heading.
+     */
+    eyebrow?: string | null;
     richText?: {
       root: {
         type: string;
@@ -231,6 +235,16 @@ export interface Page {
              */
             appearance?: ('default' | 'outline') | null;
           };
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * The facts rail beside the heading. Do not repeat numbers the stats block already carries.
+     */
+    facts?:
+      | {
+          label: string;
+          value: string;
           id?: string | null;
         }[]
       | null;
@@ -883,6 +897,10 @@ export interface CallToActionBlock {
     };
     [k: string]: unknown;
   } | null;
+  /**
+   * At most two blue slabs per page.
+   */
+  variant?: ('plain' | 'slab') | null;
   links?:
     | {
         link: {
@@ -1198,6 +1216,10 @@ export interface ProcessBlock {
    */
   lead?: string | null;
   /**
+   * At most two blue slabs per page. Use plain if the page already has them.
+   */
+  variant?: ('slab' | 'plain') | null;
+  /**
    * Numbers are generated from the order.
    */
   steps?:
@@ -1346,6 +1368,8 @@ export interface ServicesGridBlock {
    * One or two sentences under the heading.
    */
   lead?: string | null;
+  layout?: ('trades' | 'rows') | null;
+  columns?: ('2' | '3') | null;
   source?: ('all' | 'selected') | null;
   services?: (number | Service)[] | null;
   id?: string | null;
@@ -1807,6 +1831,7 @@ export interface PagesSelect<T extends boolean = true> {
     | T
     | {
         type?: T;
+        eyebrow?: T;
         richText?: T;
         links?:
           | T
@@ -1821,6 +1846,13 @@ export interface PagesSelect<T extends boolean = true> {
                     label?: T;
                     appearance?: T;
                   };
+              id?: T;
+            };
+        facts?:
+          | T
+          | {
+              label?: T;
+              value?: T;
               id?: T;
             };
         media?: T;
@@ -1998,6 +2030,7 @@ export interface ProcessBlockSelect<T extends boolean = true> {
   eyebrow?: T;
   heading?: T;
   lead?: T;
+  variant?: T;
   steps?:
     | T
     | {
@@ -2071,6 +2104,8 @@ export interface ServicesGridBlockSelect<T extends boolean = true> {
   eyebrow?: T;
   heading?: T;
   lead?: T;
+  layout?: T;
+  columns?: T;
   source?: T;
   services?: T;
   id?: T;
@@ -2125,6 +2160,7 @@ export interface ArchiveBlockSelect<T extends boolean = true> {
  */
 export interface CallToActionBlockSelect<T extends boolean = true> {
   richText?: T;
+  variant?: T;
   links?:
     | T
     | {

@@ -2,8 +2,9 @@ import React from 'react'
 
 import type { ProjectShowcaseBlock as Props } from '@/payload/payload-types'
 
-import { CMSLink } from '@/shared/components/Link'
+import { RuleLink } from '@/shared/components/RuleLink/RuleLink'
 import { SectionHeader } from '@/shared/components/SectionHeader'
+import { cmsLinkHref } from '@/shared/components/Link'
 import { getProjects } from '../../queries/getProjects'
 import { ProjectCard } from '../../ui/ProjectCard'
 
@@ -12,8 +13,8 @@ export const ProjectShowcaseBlock: React.FC<Props> = async ({
   heading,
   lead,
   source,
-  limit,
   service,
+  limit,
   links,
 }) => {
   const serviceId = typeof service === 'object' ? service?.id : service
@@ -24,25 +25,24 @@ export const ProjectShowcaseBlock: React.FC<Props> = async ({
     serviceId: source === 'service' ? (serviceId ?? undefined) : undefined,
   })
 
-  // An empty showcase is worse than none — say nothing rather than show a gap.
   if (!projects.length) return null
+
+  // Odkaz „dál“ patří na účaří hlavičky jako textový odkaz, ne jako tlačítko —
+  // na obrazovce smí být jedna akcentní akce.
+  const first = links?.[0]?.link
+  const href = cmsLinkHref(first)
+  const action =
+    href && first?.label ? (
+      <RuleLink href={href}>{first.label}</RuleLink>
+    ) : null
 
   return (
     <section className="container py-14 md:py-[104px]">
-      <div className="flex flex-wrap items-end justify-between gap-6">
-        <SectionHeader eyebrow={eyebrow} heading={heading} lead={lead} />
-        {!!links?.length && (
-          <div className="flex gap-3">
-            {links.map(({ link }, i) => (
-              <CMSLink key={i} {...link} />
-            ))}
-          </div>
-        )}
-      </div>
-      <ul className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <SectionHeader eyebrow={eyebrow} heading={heading} lead={lead} action={action} />
+      <ul className="mt-12 grid gap-x-8 gap-y-10 md:grid-cols-3">
         {projects.map((project) => (
-          <li key={project.id}>
-            <ProjectCard project={project} />
+          <li key={project.id} className="flex">
+            <ProjectCard project={project} className="w-full" />
           </li>
         ))}
       </ul>
