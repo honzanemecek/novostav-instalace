@@ -21,7 +21,7 @@ export const ServicesGridBlock: React.FC<Props> = async ({
   source,
   services: selected,
 }) => {
-  const [all, counts] = await Promise.all([getServices(), getProjectCountsByService()])
+  const [all, { byService }] = await Promise.all([getServices(), getProjectCountsByService()])
 
   const services =
     source === 'selected' && selected?.length
@@ -43,7 +43,7 @@ export const ServicesGridBlock: React.FC<Props> = async ({
       <SectionHeader eyebrow={eyebrow} heading={heading} lead={lead} align={rows ? 'split' : 'stack'} />
       <TradeList
         className="mt-12"
-        items={services.map((service) => serviceToTradeItem(service, counts))}
+        items={services.map((service) => serviceToTradeItem(service, byService))}
         layout={rows ? 'row' : 'column'}
         columns={columns === '2' ? 2 : 3}
         headingAs={rows ? 'h2' : 'h3'}

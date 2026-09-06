@@ -23,11 +23,11 @@ export async function ServicePage({
 
   if (!service) notFound()
 
-  const [counts, company] = await Promise.all([
+  const [{ byService }, company] = await Promise.all([
     getProjectCountsByService(locale),
     getCompany(locale),
   ])
-  const count = counts[service.id] ?? 0
+  const count = byService[service.id] ?? 0
 
   /*
    * Sloupec faktů nahradil odrážky pod perexem. Nic se tu nedopočítává —

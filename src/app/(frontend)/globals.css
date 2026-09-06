@@ -54,6 +54,25 @@
   @variant 2xl {
     .container { max-width: 90rem; }
   }
+
+  /*
+   * Bloky vsazené do sloupce (příběh realizace vedle sloupce faktů).
+   * Každý blok si jinak nese vlastní `.container` a svislý rytmus — tady jsou
+   * už uvnitř mřížky stránky, takže se obojí ruší a mezi bloky zůstane jen
+   * jedna mezera. Musí být v téže vrstvě jako `.container`, aby ho přebilo.
+   */
+  .blocks-inline > * {
+    padding-block: 0;
+  }
+  .blocks-inline > * + * {
+    margin-top: 2.5rem;
+  }
+  .blocks-inline .container,
+  .blocks-inline > .container {
+    max-width: none;
+    margin-inline: 0;
+    padding-inline: 0;
+  }
 }
 
 /* ============================================================

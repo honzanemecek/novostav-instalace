@@ -8,7 +8,7 @@ import { getServices } from '../queries/getServices'
 import { serviceToTradeItem } from '../ui/toTradeItems'
 
 export async function ServicesArchivePage({ locale = 'cs' }: { locale?: TypedLocale } = {}) {
-  const [services, counts] = await Promise.all([
+  const [services, { byService }] = await Promise.all([
     getServices(locale),
     getProjectCountsByService(locale),
   ])
@@ -25,7 +25,7 @@ export async function ServicesArchivePage({ locale = 'cs' }: { locale?: TypedLoc
       <section className="container pb-14 md:pb-[104px]">
         {services.length ? (
           <TradeList
-            items={services.map((service) => serviceToTradeItem(service, counts))}
+            items={services.map((service) => serviceToTradeItem(service, byService))}
             layout="row"
             headingAs="h2"
           />

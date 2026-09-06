@@ -3,12 +3,22 @@ import { notFound } from 'next/navigation'
 import React from 'react'
 import type { TypedLocale } from 'payload'
 
-import { LivePreviewListener } from '@/shared/components/LivePreviewListener'
-import { LocalizedLink } from '@/shared/components/LocalizedLink'
-import { Media } from '@/shared/components/Media'
-import { RenderBlocks } from '@/domains/pages'
-import { getProjectBySlug } from '../queries/getProjectBySlug'
+import type { Service } from '@/payload/payload-types'
 
+import { RenderBlocks } from '@/domains/pages'
+import { ActionRow } from '@/shared/components/ActionRow/ActionRow'
+import { Chip } from '@/shared/components/Chip/Chip'
+import { DuoPhoto } from '@/shared/components/DuoPhoto/DuoPhoto'
+import { FactList } from '@/shared/components/FactList/FactList'
+import { LivePreviewListener } from '@/shared/components/LivePreviewListener'
+import { PageHero } from '@/shared/components/PageHero/PageHero'
+import { RuleLink } from '@/shared/components/RuleLink/RuleLink'
+import { SectionHeader } from '@/shared/components/SectionHeader'
+import { getProjectBySlug } from '../queries/getProjectBySlug'
+import { getProjects } from '../queries/getProjects'
+import { ProjectCard } from '../ui/ProjectCard'
+
+/** „Září 2025“ — v sloupci faktů je slovní měsíc čitelnější než 09/2025. */
 const formatCompleted = (value?: string | null): string | null => {
   if (!value) return null
   const date = new Date(value)
@@ -28,82 +38,100 @@ export async function ProjectPage({
 
   if (!project) notFound()
 
-  const services = (project.services ?? []).filter((service) => typeof service === 'object')
+  const services = (project.services ?? []).filter(
+    (service): service is Service => typeof service === 'object' && service !== null,
+  )
   const completed = formatCompleted(project.completedAt)
 
+  const more = await getProjects({ limit: 3, excludeId: project.id, locale })
+
+  const facts = [
+    project.location ? { label: 'Místo', value: project.location } : null,
+    completed ? { label: 'Dokončeno', value: completed } : null,
+    ...(project.facts ?? []).map((fact) => ({ label: fact.label, value: fact.value })),
+  ].filter((fact) => fact !== null)
+
   return (
-    <article className="pb-24">
+    <article>
       {draft && <LivePreviewListener />}
 
-      <header className="container pt-12 md:pt-16">
-        <p className="text-sm text-muted-foreground">
-          <LocalizedLink className="underline-offset-4 hover:underline" href="/realizace">
-            Realizace
-          </LocalizedLink>
-        </p>
-        <h1 className="mt-4 max-w-4xl text-4xl font-semibold tracking-tight text-balance md:text-5xl">
-          {project.title}
-        </h1>
-        {project.summary && (
-          <p className="mt-5 max-w-prose text-lg text-muted-foreground">{project.summary}</p>
-        )}
+      <PageHero
+        breadcrumb={[
+          { label: 'Realizace', href: '/realizace' },
+          { label: project.title },
+        ]}
+        eyebrow="Realizace"
+        heading={project.title}
+        lead={project.summary}
+        className="pb-10 md:pb-14"
+      />
 
-        {!!services.length && (
-          <ul className="mt-6 flex flex-wrap gap-2">
-            {services.map((service) => (
-              <li key={service.id}>
-                <LocalizedLink
-                  className="inline-flex rounded-full border border-border bg-card px-3 py-1 text-sm transition-colors hover:border-foreground/25"
-                  href={`/sluzby/${service.slug}`}
-                >
-                  {service.title}
-                </LocalizedLink>
+      {/* Fotografie je LCP — priority, žádná animace při vstupu. */}
+      {project.coverImage && (
+        <DuoPhoto plain resource={project.coverImage} aspect="16 / 6" priority size="100vw" />
+      )}
+
+      <div className="container py-14 md:py-[104px]">
+        <div className="grid gap-12 md:grid-cols-[minmax(0,1fr)_400px] md:items-start md:gap-20">
+          <div>
+            {!!project.layout?.length && (
+              <>
+                <h2 className="sr-only">Průběh</h2>
+                <div className="blocks-inline">
+                  <RenderBlocks blocks={project.layout} />
+                </div>
+              </>
+            )}
+          </div>
+
+          <aside className="flex flex-col gap-10">
+            {facts.length > 0 && <FactList items={facts} />}
+
+            {services.length > 0 && (
+              <div>
+                <h2 className="eyebrow mb-4">Řemesla na této realizaci</h2>
+                <ul className="flex flex-wrap gap-2">
+                  {services.map((service) => (
+                    <li key={service.id}>
+                      <Chip href={`/sluzby/${service.slug}`} size="sm">
+                        {service.title}
+                      </Chip>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <div className="border-t border-border pt-6">
+              <h2 className="text-[19px] leading-[1.3]">Máte podobný dům?</h2>
+              <p className="mt-2 text-[15px] leading-[1.7] text-muted-foreground">
+                Řekněte nám, co potřebujete. Ozveme se týž den.
+              </p>
+              <ActionRow
+                className="mt-5"
+                full
+                links={[{ link: { type: 'custom', url: '/kontakt', label: 'Nezávazná poptávka' } }]}
+              />
+            </div>
+          </aside>
+        </div>
+      </div>
+
+      {more.length > 0 && (
+        <section className="container pb-14 md:pb-[104px]">
+          <SectionHeader
+            heading="Další realizace"
+            action={<RuleLink href="/realizace">Zpět na přehled</RuleLink>}
+          />
+          <ul className="mt-12 grid gap-x-8 gap-y-10 md:grid-cols-3">
+            {more.map((item) => (
+              <li key={item.id}>
+                <ProjectCard project={item} variant="caption" />
               </li>
             ))}
           </ul>
-        )}
-      </header>
-
-      {project.coverImage && (
-        <div className="container mt-10">
-          <div className="relative aspect-[16/9] overflow-hidden rounded-lg bg-card">
-            <Media
-              resource={project.coverImage}
-              fill
-              priority
-              imgClassName="object-cover"
-              size="(max-width: 1280px) 100vw, 1280px"
-            />
-          </div>
-        </div>
+        </section>
       )}
-
-      {(project.location || completed || !!project.facts?.length) && (
-        <div className="container mt-10">
-          <dl className="grid gap-6 rounded-lg border border-border bg-card p-6 sm:grid-cols-2 lg:grid-cols-4">
-            {project.location && (
-              <div>
-                <dt className="text-sm text-muted-foreground">Místo</dt>
-                <dd className="mt-1 font-medium">{project.location}</dd>
-              </div>
-            )}
-            {completed && (
-              <div>
-                <dt className="text-sm text-muted-foreground">Dokončeno</dt>
-                <dd className="mt-1 font-medium">{completed}</dd>
-              </div>
-            )}
-            {(project.facts ?? []).map((fact, i) => (
-              <div key={fact.id ?? i}>
-                <dt className="text-sm text-muted-foreground">{fact.label}</dt>
-                <dd className="mt-1 font-medium">{fact.value}</dd>
-              </div>
-            ))}
-          </dl>
-        </div>
-      )}
-
-      <RenderBlocks blocks={project.layout} />
     </article>
   )
 }

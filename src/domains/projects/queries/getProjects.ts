@@ -10,6 +10,8 @@ export type ProjectListOptions = {
   featured?: boolean
   /** Filter by service id — the taxonomy that drives "ukázky našich střech". */
   serviceId?: number | string
+  /** Leave one project out — "Další realizace" must not list the page you are on. */
+  excludeId?: number | string
   locale?: TypedLocale
 }
 
@@ -22,6 +24,7 @@ export const getProjects = cache(
     limit = 12,
     featured,
     serviceId,
+    excludeId,
     locale = 'cs',
   }: ProjectListOptions = {}): Promise<Project[]> => {
     const { isEnabled: draft } = await draftMode()
@@ -30,6 +33,7 @@ export const getProjects = cache(
     const and: Where[] = []
     if (featured) and.push({ featured: { equals: true } })
     if (serviceId) and.push({ services: { in: [serviceId] } })
+    if (excludeId) and.push({ id: { not_equals: excludeId } })
 
     const result = await payload.find({
       collection: 'projects',
