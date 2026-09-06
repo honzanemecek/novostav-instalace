@@ -1,5 +1,5 @@
 import React from 'react'
-import { Footer, Header } from '@/domains/layout'
+import { Footer, Header, MobileBar } from '@/domains/layout'
 import { LocaleProvider } from '@/shared/components/LocaleProvider'
 
 export default function EnglishLayout({ children }: { children: React.ReactNode }) {
@@ -10,6 +10,7 @@ export default function EnglishLayout({ children }: { children: React.ReactNode 
       <Header locale="en" />
       {children}
       <Footer locale="en" />
+      <MobileBar locale="en" />
     </LocaleProvider>
   )
 }

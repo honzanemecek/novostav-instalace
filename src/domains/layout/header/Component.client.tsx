@@ -1,8 +1,6 @@
 'use client'
-import { useHeaderTheme } from '../providers/HeaderTheme'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 
 import type { Header } from '@/payload/payload-types'
 
@@ -13,32 +11,24 @@ import { HeaderNav } from './Nav'
 interface HeaderClientProps {
   data: Header
   phone?: string | null
+  availabilityNote?: string | null
 }
 
-export const HeaderClient: React.FC<HeaderClientProps> = ({ data, phone }) => {
-  /* Storing the value in a useState to avoid hydration errors */
-  const [theme, setTheme] = useState<string | null>(null)
-  const { headerTheme, setHeaderTheme } = useHeaderTheme()
-  const pathname = usePathname()
+/**
+ * Vlasová linka na bílém podkladu, žádný stín. Hlavička nikdy nesedí na
+ * fotografii, takže nepotřebuje překlápět téma — proto tu není `useHeaderTheme`.
+ */
+export const HeaderClient: React.FC<HeaderClientProps> = ({ data, phone, availabilityNote }) => {
   const localizeHref = useLocalizeHref()
 
-  useEffect(() => {
-    setHeaderTheme(null)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname])
-
-  useEffect(() => {
-    if (headerTheme && headerTheme !== theme) setTheme(headerTheme)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [headerTheme])
-
   return (
-    <header className="container relative z-20   " {...(theme ? { 'data-theme': theme } : {})}>
-      <div className="py-8 flex justify-between">
-        <Link href={localizeHref('/')}>
-          <Logo variant="lockup" size={36} />
+    <header className="relative z-30 border-b border-border bg-background">
+      <div className="container flex h-16 items-center justify-between gap-6 md:h-[92px]">
+        <Link href={localizeHref('/')} aria-label="Novostav-Instalace — domů" className="shrink-0">
+          <Logo variant="lockup" size={28} className="md:hidden" />
+          <Logo variant="lockup" size={40} className="hidden md:flex" />
         </Link>
-        <HeaderNav data={data} phone={phone} />
+        <HeaderNav data={data} phone={phone} availabilityNote={availabilityNote} />
       </div>
     </header>
   )

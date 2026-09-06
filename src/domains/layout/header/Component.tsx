@@ -11,5 +11,11 @@ export async function Header({ locale = 'cs' }: { locale?: TypedLocale } = {}) {
     getCompany(locale),
   ])
 
-  return <HeaderClient data={headerData} phone={company.phone} />
+  return (
+    <HeaderClient
+      data={headerData}
+      phone={company.phone}
+      availabilityNote={company.availabilityNote}
+    />
+  )
 }

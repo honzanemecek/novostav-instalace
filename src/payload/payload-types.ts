@@ -2794,6 +2794,37 @@ export interface Header {
         id?: string | null;
       }[]
     | null;
+  /**
+   * The single accent button in the header. The phone beside it comes from the Company global.
+   */
+  cta?:
+    | {
+        link: {
+          type?: ('reference' | 'custom') | null;
+          newTab?: boolean | null;
+          reference?:
+            | ({
+                relationTo: 'pages';
+                value: number | Page;
+              } | null)
+            | ({
+                relationTo: 'services';
+                value: number | Service;
+              } | null)
+            | ({
+                relationTo: 'projects';
+                value: number | Project;
+              } | null)
+            | ({
+                relationTo: 'posts';
+                value: number | Post;
+              } | null);
+          url?: string | null;
+          label: string;
+        };
+        id?: string | null;
+      }[]
+    | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -2803,7 +2834,39 @@ export interface Header {
  */
 export interface Footer {
   id: number;
+  /**
+   * One sentence about the firm. Facts come from the Company global — do not repeat them here.
+   */
+  tagline?: string | null;
   navItems?:
+    | {
+        link: {
+          type?: ('reference' | 'custom') | null;
+          newTab?: boolean | null;
+          reference?:
+            | ({
+                relationTo: 'pages';
+                value: number | Page;
+              } | null)
+            | ({
+                relationTo: 'services';
+                value: number | Service;
+              } | null)
+            | ({
+                relationTo: 'projects';
+                value: number | Project;
+              } | null)
+            | ({
+                relationTo: 'posts';
+                value: number | Post;
+              } | null);
+          url?: string | null;
+          label: string;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  legalLinks?:
     | {
         link: {
           type?: ('reference' | 'custom') | null;
@@ -2921,6 +2984,20 @@ export interface HeaderSelect<T extends boolean = true> {
             };
         id?: T;
       };
+  cta?:
+    | T
+    | {
+        link?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              reference?: T;
+              url?: T;
+              label?: T;
+            };
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -2930,7 +3007,22 @@ export interface HeaderSelect<T extends boolean = true> {
  * via the `definition` "footer_select".
  */
 export interface FooterSelect<T extends boolean = true> {
+  tagline?: T;
   navItems?:
+    | T
+    | {
+        link?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              reference?: T;
+              url?: T;
+              label?: T;
+            };
+        id?: T;
+      };
+  legalLinks?:
     | T
     | {
         link?:

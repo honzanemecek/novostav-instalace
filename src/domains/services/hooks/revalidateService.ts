@@ -16,6 +16,8 @@ const revalidateServicePaths = (slug?: string | null) => {
     for (const p of [path, localizeHref(path, 'en')]) revalidatePath(p)
   }
   revalidateTag('services-sitemap', 'max')
+  // The footer lists the collection, not navItems — clear its cache too.
+  revalidateTag('collection_services', 'max')
 }
 
 export const revalidateService: CollectionAfterChangeHook<Service> = ({
