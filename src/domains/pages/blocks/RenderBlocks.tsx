@@ -13,9 +13,10 @@ import { FeatureGridBlock } from './FeatureGrid/Component'
 import { FormBlock } from '@/domains/forms'
 import { GalleryBlock } from '@/shared/components/RichText/blocks/Gallery/Component'
 import { MediaBlock } from '@/shared/components/RichText/blocks/MediaBlock/Component'
+import { PhotoStripBlock } from './PhotoStrip/Component'
 import { ProcessBlock } from './Process/Component'
 import { ProjectShowcaseBlock } from '@/domains/projects'
-import { ServicesGridBlock } from '@/domains/services'
+import { RelatedServicesBlock, ServicesGridBlock } from '@/domains/services'
 import { StatsBlock } from './Stats/Component'
 import { TestimonialsBlock } from './Testimonials/Component'
 import { TextWithImageBlock } from './TextWithImage/Component'
@@ -47,8 +48,10 @@ const blockComponents = {
   formBlock: FormBlock,
   gallery: asSection(GalleryBlock),
   mediaBlock: asSection(MediaBlock),
+  photoStrip: PhotoStripBlock,
   process: ProcessBlock,
   projectShowcase: ProjectShowcaseBlock,
+  relatedServices: RelatedServicesBlock,
   servicesGrid: ServicesGridBlock,
   stats: StatsBlock,
   testimonials: TestimonialsBlock,

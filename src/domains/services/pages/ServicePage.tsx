@@ -3,11 +3,13 @@ import { notFound } from 'next/navigation'
 import React from 'react'
 import type { TypedLocale } from 'payload'
 
-import { LivePreviewListener } from '@/shared/components/LivePreviewListener'
-import { Media } from '@/shared/components/Media'
+import { getCompany } from '@/domains/company'
+import { getProjectCountsByService } from '@/domains/projects'
 import { RenderBlocks } from '@/domains/pages'
+import { DuoPhoto } from '@/shared/components/DuoPhoto/DuoPhoto'
+import { LivePreviewListener } from '@/shared/components/LivePreviewListener'
+import { PageHero } from '@/shared/components/PageHero/PageHero'
 import { getServiceBySlug } from '../queries/getServiceBySlug'
-import { ServiceIcon } from '../ui/ServiceIcon'
 
 export async function ServicePage({
   slug,
@@ -21,46 +23,46 @@ export async function ServicePage({
 
   if (!service) notFound()
 
+  const [counts, company] = await Promise.all([
+    getProjectCountsByService(locale),
+    getCompany(locale),
+  ])
+  const count = counts[service.id] ?? 0
+
+  /*
+   * Sloupec faktů nahradil odrážky pod perexem. Nic se tu nedopočítává —
+   * `highlights` se čtou jako štítky v bloku „Rozsah práce“, kde nesou víc než
+   * seznam, a všechno ostatní jde z globálu Firma.
+   */
+  const facts = [
+    count ? { label: 'Realizace', value: String(count) } : null,
+    company.serviceArea ? { label: 'Kde pracujeme', value: company.serviceArea } : null,
+    company.availabilityNote ? { label: 'Kdy voláte', value: company.availabilityNote } : null,
+  ].filter((fact) => fact !== null)
+
   return (
-    <article className="pb-24">
+    <article>
       {draft && <LivePreviewListener />}
 
-      <header className="container pt-12 md:pt-16">
-        <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
-          <div className="flex flex-col gap-5">
-            <ServiceIcon name={service.icon} className="size-9 text-muted-foreground" />
-            <h1 className="text-4xl font-semibold tracking-tight text-balance md:text-5xl">
-              {service.title}
-            </h1>
-            {service.shortDescription && (
-              <p className="max-w-prose text-lg text-muted-foreground">
-                {service.shortDescription}
-              </p>
-            )}
-            {!!service.highlights?.length && (
-              <ul className="mt-2 flex flex-col gap-2">
-                {service.highlights.map((item, i) => (
-                  <li key={item.id ?? i} className="flex gap-3">
-                    <span aria-hidden className="mt-2.5 size-1.5 shrink-0 rounded-full bg-foreground/40" />
-                    <span>{item.text}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-          {service.image && (
-            <div className="relative aspect-[4/3] overflow-hidden rounded-lg bg-card">
-              <Media
-                resource={service.image}
-                fill
-                priority
-                imgClassName="object-cover"
-                size="(max-width: 1024px) 100vw, 50vw"
-              />
-            </div>
-          )}
-        </div>
-      </header>
+      <PageHero
+        breadcrumb={[
+          { label: 'Služby', href: '/sluzby' },
+          { label: service.title },
+        ]}
+        eyebrow="Řemeslo"
+        heading={service.title}
+        lead={service.shortDescription}
+        facts={facts}
+        railWidth="md"
+        className="pb-10 md:pb-14"
+      />
+
+      {/* Jedna skutečná fotografie služby. Dvoj- a trojpásy si redaktor přidá
+          blokem „Pás fotografií“, který tahá z realizací — nevymýšlíme sloty,
+          pro které nejsou data. */}
+      {service.image && (
+        <DuoPhoto plain resource={service.image} aspect="16 / 7" priority size="100vw" />
+      )}
 
       <RenderBlocks blocks={service.layout} />
     </article>

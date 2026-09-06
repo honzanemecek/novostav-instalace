@@ -7,6 +7,7 @@ export { ContactDetails as ContactDetailsBlockConfig } from './blocks/ContactDet
 export { Content as ContentBlockConfig } from './blocks/Content/config'
 export { FAQ as FAQBlockConfig } from './blocks/FAQ/config'
 export { FeatureGrid as FeatureGridBlockConfig } from './blocks/FeatureGrid/config'
+export { PhotoStrip as PhotoStripBlockConfig } from './blocks/PhotoStrip/config'
 export { Process as ProcessBlockConfig } from './blocks/Process/config'
 export { Stats as StatsBlockConfig } from './blocks/Stats/config'
 export { Testimonials as TestimonialsBlockConfig } from './blocks/Testimonials/config'

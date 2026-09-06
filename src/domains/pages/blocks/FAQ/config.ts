@@ -12,6 +12,30 @@ export const FAQ: Block = {
   fields: [
     ...sectionHeaderFields(),
     {
+      type: 'row',
+      fields: [
+        {
+          name: 'anchor',
+          type: 'text',
+          label: { cs: 'Kotva', en: 'Anchor' },
+          admin: {
+            width: '60%',
+            description: {
+              cs: 'Id sekce pro odkaz v menu, např. „caste-dotazy“ → /o-nas#caste-dotazy.',
+              en: 'Section id for a menu anchor, e.g. "caste-dotazy".',
+            },
+          },
+        },
+        {
+          name: 'defaultOpenFirst',
+          type: 'checkbox',
+          label: { cs: 'První dotaz otevřený', en: 'First question open' },
+          defaultValue: true,
+          admin: { width: '40%' },
+        },
+      ],
+    },
+    {
       name: 'items',
       type: 'array',
       label: { cs: 'Dotazy', en: 'Questions' },

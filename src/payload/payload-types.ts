@@ -253,10 +253,12 @@ export interface Page {
   layout: (
     | ContentBlock
     | TextWithImageBlock
+    | PhotoStripBlock
     | MediaBlock
     | GalleryBlock
     | BeforeAfterBlock
     | FeatureGridBlock
+    | RelatedServicesBlock
     | StatsBlock
     | ProcessBlock
     | FAQBlock
@@ -335,10 +337,12 @@ export interface Service {
     | (
         | ContentBlock
         | TextWithImageBlock
+        | PhotoStripBlock
         | MediaBlock
         | GalleryBlock
         | BeforeAfterBlock
         | FeatureGridBlock
+        | RelatedServicesBlock
         | ProcessBlock
         | FAQBlock
         | TestimonialsBlock
@@ -584,6 +588,7 @@ export interface Project {
     | (
         | ContentBlock
         | TextWithImageBlock
+        | PhotoStripBlock
         | MediaBlock
         | GalleryBlock
         | BeforeAfterBlock
@@ -776,6 +781,30 @@ export interface User {
     | null;
   password?: string | null;
   collection: 'users';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PhotoStripBlock".
+ */
+export interface PhotoStripBlock {
+  source?: ('latest' | 'featured' | 'service' | 'manual') | null;
+  limit?: ('2' | '3') | null;
+  /**
+   * Duotone belongs on a blue slab only.
+   */
+  plain?: boolean | null;
+  service?: (number | null) | Service;
+  items?:
+    | {
+        image?: (number | null) | Media;
+        eyebrow?: string | null;
+        title?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'photoStrip';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1194,12 +1223,53 @@ export interface FeatureGridBlock {
           | null;
         title: string;
         description?: string | null;
+        /**
+         * Short spec chips under the description — materials, standards, ranges.
+         */
+        tags?:
+          | {
+              label: string;
+              id?: string | null;
+            }[]
+          | null;
         id?: string | null;
       }[]
     | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'featureGrid';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "RelatedServicesBlock".
+ */
+export interface RelatedServicesBlock {
+  /**
+   * Short label above the heading.
+   */
+  eyebrow?: string | null;
+  heading?: string | null;
+  /**
+   * One or two sentences under the heading.
+   */
+  lead?: string | null;
+  /**
+   * At most two blue slabs per page.
+   */
+  variant?: ('plain' | 'slab') | null;
+  items?:
+    | {
+        service: number | Service;
+        /**
+         * One sentence. Falls back to the service short description.
+         */
+        note?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'relatedServices';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1247,6 +1317,11 @@ export interface FAQBlock {
    * One or two sentences under the heading.
    */
   lead?: string | null;
+  /**
+   * Section id for a menu anchor, e.g. "caste-dotazy".
+   */
+  anchor?: string | null;
+  defaultOpenFirst?: boolean | null;
   /**
    * Use real customer questions — price, timeline, warranty.
    */
@@ -1862,10 +1937,12 @@ export interface PagesSelect<T extends boolean = true> {
     | {
         content?: T | ContentBlockSelect<T>;
         textWithImage?: T | TextWithImageBlockSelect<T>;
+        photoStrip?: T | PhotoStripBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
         gallery?: T | GalleryBlockSelect<T>;
         beforeAfter?: T | BeforeAfterBlockSelect<T>;
         featureGrid?: T | FeatureGridBlockSelect<T>;
+        relatedServices?: T | RelatedServicesBlockSelect<T>;
         stats?: T | StatsBlockSelect<T>;
         process?: T | ProcessBlockSelect<T>;
         faq?: T | FAQBlockSelect<T>;
@@ -1946,6 +2023,26 @@ export interface TextWithImageBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PhotoStripBlock_select".
+ */
+export interface PhotoStripBlockSelect<T extends boolean = true> {
+  source?: T;
+  limit?: T;
+  plain?: T;
+  service?: T;
+  items?:
+    | T
+    | {
+        image?: T;
+        eyebrow?: T;
+        title?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "MediaBlock_select".
  */
 export interface MediaBlockSelect<T extends boolean = true> {
@@ -1997,6 +2094,31 @@ export interface FeatureGridBlockSelect<T extends boolean = true> {
         icon?: T;
         title?: T;
         description?: T;
+        tags?:
+          | T
+          | {
+              label?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "RelatedServicesBlock_select".
+ */
+export interface RelatedServicesBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  heading?: T;
+  lead?: T;
+  variant?: T;
+  items?:
+    | T
+    | {
+        service?: T;
+        note?: T;
         id?: T;
       };
   id?: T;
@@ -2049,6 +2171,8 @@ export interface FAQBlockSelect<T extends boolean = true> {
   eyebrow?: T;
   heading?: T;
   lead?: T;
+  anchor?: T;
+  defaultOpenFirst?: T;
   items?:
     | T
     | {
@@ -2226,10 +2350,12 @@ export interface ServicesSelect<T extends boolean = true> {
     | {
         content?: T | ContentBlockSelect<T>;
         textWithImage?: T | TextWithImageBlockSelect<T>;
+        photoStrip?: T | PhotoStripBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
         gallery?: T | GalleryBlockSelect<T>;
         beforeAfter?: T | BeforeAfterBlockSelect<T>;
         featureGrid?: T | FeatureGridBlockSelect<T>;
+        relatedServices?: T | RelatedServicesBlockSelect<T>;
         process?: T | ProcessBlockSelect<T>;
         faq?: T | FAQBlockSelect<T>;
         testimonials?: T | TestimonialsBlockSelect<T>;
@@ -2275,6 +2401,7 @@ export interface ProjectsSelect<T extends boolean = true> {
     | {
         content?: T | ContentBlockSelect<T>;
         textWithImage?: T | TextWithImageBlockSelect<T>;
+        photoStrip?: T | PhotoStripBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
         gallery?: T | GalleryBlockSelect<T>;
         beforeAfter?: T | BeforeAfterBlockSelect<T>;

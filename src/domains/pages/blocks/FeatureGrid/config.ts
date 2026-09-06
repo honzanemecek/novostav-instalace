@@ -34,12 +34,15 @@ export const FeatureGrid: Block = {
           type: 'row',
           fields: [
             {
+              // Systémové pravidlo č. 8: ikony jen tam, kde něco dělají. Pole
+              // zůstává (zahodit select sloupec je destruktivní migrace bez
+              // vizuálního přínosu), ale nevykresluje se a redaktor ho nevidí.
               name: 'icon',
               type: 'select',
               label: { cs: 'Ikona', en: 'Icon' },
               options: serviceIconOptions,
               defaultValue: 'wrench',
-              admin: { width: '40%' },
+              admin: { width: '40%', hidden: true },
             },
             {
               name: 'title',
@@ -54,6 +57,27 @@ export const FeatureGrid: Block = {
           name: 'description',
           type: 'textarea',
           label: { cs: 'Popis', en: 'Description' },
+        },
+        {
+          name: 'tags',
+          type: 'array',
+          label: { cs: 'Štítky', en: 'Tags' },
+          maxRows: 8,
+          admin: {
+            initCollapsed: true,
+            description: {
+              cs: 'Krátké technické údaje pod popisem — materiály, normy, rozsahy.',
+              en: 'Short spec chips under the description — materials, standards, ranges.',
+            },
+          },
+          fields: [
+            {
+              name: 'label',
+              type: 'text',
+              label: { cs: 'Štítek', en: 'Label' },
+              required: true,
+            },
+          ],
         },
       ],
     },

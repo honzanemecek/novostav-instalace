@@ -3,7 +3,7 @@ import type { Block } from 'payload'
 import { ArchiveBlockConfig } from '@/domains/posts/config'
 import { FormBlockConfig } from '@/domains/forms/config'
 import { ProjectShowcaseBlockConfig } from '@/domains/projects/config'
-import { ServicesGridBlockConfig } from '@/domains/services/config'
+import { RelatedServicesBlockConfig, ServicesGridBlockConfig } from '@/domains/services/config'
 import {
   BrandsBlockConfig,
   CallToActionBlockConfig,
@@ -11,6 +11,7 @@ import {
   ContentBlockConfig,
   FAQBlockConfig,
   FeatureGridBlockConfig,
+  PhotoStripBlockConfig,
   ProcessBlockConfig,
   StatsBlockConfig,
   TestimonialsBlockConfig,
@@ -32,6 +33,7 @@ import { MediaBlock } from '@/shared/components/RichText/blocks/MediaBlock/confi
 const foundation: Block[] = [
   ContentBlockConfig,
   TextWithImageBlockConfig,
+  PhotoStripBlockConfig,
   MediaBlock,
   Gallery,
   BeforeAfter,
@@ -40,6 +42,7 @@ const foundation: Block[] = [
 /** Marketing sections. */
 const marketing: Block[] = [
   FeatureGridBlockConfig,
+  RelatedServicesBlockConfig,
   StatsBlockConfig,
   ProcessBlockConfig,
   FAQBlockConfig,
@@ -65,6 +68,7 @@ export const pageLayoutBlocks: Block[] = [
 export const serviceLayoutBlocks: Block[] = [
   ...foundation,
   FeatureGridBlockConfig,
+  RelatedServicesBlockConfig,
   ProcessBlockConfig,
   FAQBlockConfig,
   TestimonialsBlockConfig,
