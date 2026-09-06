@@ -1,6 +1,7 @@
 'use client'
 
 import { Menu, Phone, X } from 'lucide-react'
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { usePathname } from 'next/navigation'
 import React from 'react'
 
@@ -25,6 +26,7 @@ export const HeaderNav: React.FC<Props> = ({ data, phone, availabilityNote }) =>
   const cta = data?.cta
   const localizeHref = useLocalizeHref()
   const pathname = usePathname()
+  const reduce = useReducedMotion()
 
   const [open, setOpen] = React.useState(false)
   const containerRef = React.useRef<HTMLDivElement>(null)
@@ -76,7 +78,12 @@ export const HeaderNav: React.FC<Props> = ({ data, phone, availabilityNote }) =>
             <PhoneLink phone={phone} tone="inherit" />
           </Button>
           {/* Telefon je konverze — na mobilu nikdy nemizí do menu a drží 44px. */}
-          <Button asChild variant="outline" size="icon" className="border-accent text-accent md:hidden">
+          <Button
+            asChild
+            variant="outline"
+            size="icon"
+            className="border-accent text-accent md:hidden"
+          >
             <PhoneLink phone={phone} tone="inherit">
               <Phone aria-hidden className="size-5" />
               <span className="sr-only">Zavolat {phone}</span>
@@ -100,38 +107,45 @@ export const HeaderNav: React.FC<Props> = ({ data, phone, availabilityNote }) =>
         </button>
       )}
 
-      {open && (
-        <div
-          className="absolute inset-x-0 top-full z-30 border-b border-border bg-background md:hidden"
-          id="mobile-nav"
-          // Closing on the click that navigates avoids a pathname effect and
-          // also handles a link back to the page you are already on.
-          onClick={close}
-        >
-          <nav aria-label="Hlavní navigace" className="container">
-            <ul className="flex flex-col">
-              {navItems.map(({ link }, i) => (
-                <li className="border-b border-border" key={i}>
-                  <CMSLink
-                    className={cn(
-                      'flex min-h-14 items-center text-[17px] font-semibold no-underline',
-                      isActive(link) ? 'text-accent' : 'text-foreground',
-                    )}
-                    {...link}
-                    appearance="inline"
-                  />
-                </li>
-              ))}
-            </ul>
-          </nav>
-          <div className="container flex flex-col gap-4 py-6">
-            {!!cta?.length && <ActionRow links={cta} full />}
-            {availabilityNote && (
-              <p className="text-sm leading-[1.7] text-muted-foreground">{availabilityNote}</p>
-            )}
-          </div>
-        </div>
-      )}
+      {/* Rozbalení výškou a průhledností — panel se rozvine, nevyskočí. */}
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            className="absolute inset-x-0 top-full z-30 overflow-hidden border-b border-border bg-background md:hidden"
+            id="mobile-nav"
+            initial={reduce ? false : { height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={reduce ? { opacity: 0 } : { height: 0, opacity: 0 }}
+            transition={{ duration: reduce ? 0 : 0.2, ease: 'easeOut' }}
+            // Closing on the click that navigates avoids a pathname effect and
+            // also handles a link back to the page you are already on.
+            onClick={close}
+          >
+            <nav aria-label="Hlavní navigace" className="container">
+              <ul className="flex flex-col">
+                {navItems.map(({ link }, i) => (
+                  <li className="border-b border-border" key={i}>
+                    <CMSLink
+                      className={cn(
+                        'flex min-h-14 items-center text-[17px] font-semibold no-underline',
+                        isActive(link) ? 'text-accent' : 'text-foreground',
+                      )}
+                      {...link}
+                      appearance="inline"
+                    />
+                  </li>
+                ))}
+              </ul>
+            </nav>
+            <div className="container flex flex-col gap-4 py-6">
+              {!!cta?.length && <ActionRow links={cta} full />}
+              {availabilityNote && (
+                <p className="text-sm leading-[1.7] text-muted-foreground">{availabilityNote}</p>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

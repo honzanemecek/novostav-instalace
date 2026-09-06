@@ -269,6 +269,7 @@ export interface Page {
     | ArchiveBlock
     | CallToActionBlock
     | ContactDetailsBlock
+    | InquiryBlock
     | FormBlock
   )[];
   meta?: {
@@ -350,6 +351,7 @@ export interface Service {
         | ProjectShowcaseBlock
         | CallToActionBlock
         | ContactDetailsBlock
+        | InquiryBlock
         | FormBlock
       )[]
     | null;
@@ -595,6 +597,7 @@ export interface Project {
         | ProjectShowcaseBlock
         | CallToActionBlock
         | ContactDetailsBlock
+        | InquiryBlock
         | FormBlock
       )[]
     | null;
@@ -984,35 +987,39 @@ export interface ContactDetailsBlock {
   showEmail?: boolean | null;
   showAddress?: boolean | null;
   showServiceArea?: boolean | null;
+  /**
+   * The phone as the largest element on the page.
+   */
+  showBigPhone?: boolean | null;
+  /**
+   * A drawn schematic, not a third-party map — no tracking, no API key.
+   */
+  showMap?: boolean | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'contactDetails';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "FormBlock".
+ * via the `definition` "InquiryBlock".
  */
-export interface FormBlock {
+export interface InquiryBlock {
+  /**
+   * Short label above the heading.
+   */
+  eyebrow?: string | null;
+  heading?: string | null;
+  /**
+   * One or two sentences under the heading.
+   */
+  lead?: string | null;
+  /**
+   * Answers are stored under sluzby, misto, termin, zprava, jmeno, telefon, email. Create fields with those names — a required field with another name will block submission.
+   */
   form: number | Form;
-  enableIntro?: boolean | null;
-  introContent?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
   id?: string | null;
   blockName?: string | null;
-  blockType: 'formBlock';
+  blockType: 'inquiry';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1187,6 +1194,32 @@ export interface Form {
     | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FormBlock".
+ */
+export interface FormBlock {
+  form: number | Form;
+  enableIntro?: boolean | null;
+  introContent?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'formBlock';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1953,6 +1986,7 @@ export interface PagesSelect<T extends boolean = true> {
         archive?: T | ArchiveBlockSelect<T>;
         cta?: T | CallToActionBlockSelect<T>;
         contactDetails?: T | ContactDetailsBlockSelect<T>;
+        inquiry?: T | InquiryBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
       };
   meta?:
@@ -2315,6 +2349,20 @@ export interface ContactDetailsBlockSelect<T extends boolean = true> {
   showEmail?: T;
   showAddress?: T;
   showServiceArea?: T;
+  showBigPhone?: T;
+  showMap?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "InquiryBlock_select".
+ */
+export interface InquiryBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  heading?: T;
+  lead?: T;
+  form?: T;
   id?: T;
   blockName?: T;
 }
@@ -2363,6 +2411,7 @@ export interface ServicesSelect<T extends boolean = true> {
         projectShowcase?: T | ProjectShowcaseBlockSelect<T>;
         cta?: T | CallToActionBlockSelect<T>;
         contactDetails?: T | ContactDetailsBlockSelect<T>;
+        inquiry?: T | InquiryBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
       };
   meta?:
@@ -2408,6 +2457,7 @@ export interface ProjectsSelect<T extends boolean = true> {
         projectShowcase?: T | ProjectShowcaseBlockSelect<T>;
         cta?: T | CallToActionBlockSelect<T>;
         contactDetails?: T | ContactDetailsBlockSelect<T>;
+        inquiry?: T | InquiryBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
       };
   meta?:

@@ -48,6 +48,37 @@ export const ContactDetails: Block = {
             },
           ],
         },
+        {
+          type: 'row',
+          fields: [
+            {
+              name: 'showBigPhone',
+              type: 'checkbox',
+              label: { cs: 'Telefon velkým písmem', en: 'Phone, large' },
+              defaultValue: true,
+              admin: {
+                width: '50%',
+                description: {
+                  cs: 'Telefon jako největší prvek stránky. Na kontaktu ho nechte zapnutý.',
+                  en: 'The phone as the largest element on the page.',
+                },
+              },
+            },
+            {
+              name: 'showMap',
+              type: 'checkbox',
+              label: { cs: 'Schéma s kanceláří', en: 'Office schematic' },
+              defaultValue: false,
+              admin: {
+                width: '50%',
+                description: {
+                  cs: 'Kreslené schéma, ne mapa třetí strany — žádné sledování a žádný klíč k API.',
+                  en: 'A drawn schematic, not a third-party map — no tracking, no API key.',
+                },
+              },
+            },
+          ],
+        },
       ],
       admin: {
         description: {

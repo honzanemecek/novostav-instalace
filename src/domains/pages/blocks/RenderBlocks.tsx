@@ -10,7 +10,7 @@ import { ContactDetailsBlock } from './ContactDetails/Component'
 import { ContentBlock } from './Content/Component'
 import { FAQBlock } from './FAQ/Component'
 import { FeatureGridBlock } from './FeatureGrid/Component'
-import { FormBlock } from '@/domains/forms'
+import { FormBlock, InquiryBlock } from '@/domains/forms'
 import { GalleryBlock } from '@/shared/components/RichText/blocks/Gallery/Component'
 import { MediaBlock } from '@/shared/components/RichText/blocks/MediaBlock/Component'
 import { PhotoStripBlock } from './PhotoStrip/Component'
@@ -46,6 +46,7 @@ const blockComponents = {
   faq: FAQBlock,
   featureGrid: FeatureGridBlock,
   formBlock: FormBlock,
+  inquiry: InquiryBlock,
   gallery: asSection(GalleryBlock),
   mediaBlock: asSection(MediaBlock),
   photoStrip: PhotoStripBlock,

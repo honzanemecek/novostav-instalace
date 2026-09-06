@@ -1,7 +1,7 @@
 import type { Block } from 'payload'
 
 import { ArchiveBlockConfig } from '@/domains/posts/config'
-import { FormBlockConfig } from '@/domains/forms/config'
+import { FormBlockConfig, InquiryBlockConfig } from '@/domains/forms/config'
 import { ProjectShowcaseBlockConfig } from '@/domains/projects/config'
 import { RelatedServicesBlockConfig, ServicesGridBlockConfig } from '@/domains/services/config'
 import {
@@ -54,7 +54,12 @@ const marketing: Block[] = [
 const dynamic: Block[] = [ServicesGridBlockConfig, ProjectShowcaseBlockConfig, ArchiveBlockConfig]
 
 /** Blocks that ask the visitor to do something. */
-const conversion: Block[] = [CallToActionBlockConfig, ContactDetailsBlockConfig, FormBlockConfig]
+const conversion: Block[] = [
+  CallToActionBlockConfig,
+  ContactDetailsBlockConfig,
+  InquiryBlockConfig,
+  FormBlockConfig,
+]
 
 /** Everything — for ordinary pages, which can be anything. */
 export const pageLayoutBlocks: Block[] = [
