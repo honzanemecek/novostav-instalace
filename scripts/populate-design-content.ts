@@ -21,11 +21,14 @@
  *
  * Spuštění: NODE_ENV=production pnpm tsx scripts/populate-design-content.ts
  */
+import { spawnSync } from 'child_process'
 import fs from 'fs'
 import path from 'path'
 import { getPayload } from 'payload'
 
 import type { Page, Project, Service } from '../src/payload/payload-types'
+
+import { MEDIA } from './design-media'
 
 // Env načteme dřív, než se vyhodnotí Payload config.
 for (const name of ['.env', '.env.local']) {
@@ -92,98 +95,6 @@ const richText = (heading: string | null, paragraphs: string[], tag: 'h1' | 'h2'
 const actions = (label: string, url = '/kontakt') => [
   { link: { type: 'custom' as const, label, url } },
   { link: { type: 'custom' as const, label: `Zavolat ${PHONE}`, url: PHONE_HREF, appearance: 'outline' as const } },
-]
-
-/*
- * Fotografie. Stock z Pexels (licence dovoluje komerční užití bez uvedení
- * autora); autora přesto vedeme v popisku média, ať je v administraci vidět,
- * co je cizí fotka a co vlastní. `alt` je česky — čte ho odečítač i vyhledávač.
- */
-const MEDIA: { key: string; url: string; alt: string; credit: string }[] = [
-  {
-    key: 'sluzba-stavebni-prace',
-    url: 'https://images.pexels.com/photos/19688828/pexels-photo-19688828.jpeg?auto=compress&cs=tinysrgb&w=1880',
-    alt: 'Zedník pokládá cihlu do maltového lože na rozestavěné zdi',
-    credit: 'Pexels — Ron Lach',
-  },
-  {
-    key: 'sluzba-strechy',
-    url: 'https://images.pexels.com/photos/27806097/pexels-photo-27806097.jpeg?auto=compress&cs=tinysrgb&w=1880',
-    alt: 'Pálená krytina na sedlové střeše zblízka',
-    credit: 'Pexels',
-  },
-  {
-    key: 'sluzba-elektroinstalace',
-    url: 'https://images.pexels.com/photos/8961695/pexels-photo-8961695.jpeg?auto=compress&cs=tinysrgb&w=1880',
-    alt: 'Elektrikář vede chráničku s vodiči po zdi rozestavěného domu',
-    credit: 'Pexels — Mikael Blomkvist',
-  },
-  {
-    key: 'sluzba-vodoinstalace',
-    url: 'https://images.pexels.com/photos/6419128/pexels-photo-6419128.jpeg?auto=compress&cs=tinysrgb&w=1880',
-    alt: 'Instalatér montuje potrubí a šroubení pod zařizovacím předmětem',
-    credit: 'Pexels',
-  },
-  {
-    key: 'sluzba-topeni',
-    url: 'https://images.pexels.com/photos/20046689/pexels-photo-20046689.jpeg?auto=compress&cs=tinysrgb&w=1880',
-    alt: 'Technická místnost s akumulačními nádržemi a jednotkou tepelného čerpadla',
-    credit: 'Pexels',
-  },
-  {
-    key: 'sluzba-podlahy',
-    url: 'https://images.pexels.com/photos/7031616/pexels-photo-7031616.jpeg?auto=compress&cs=tinysrgb&w=1880',
-    alt: 'Prázdný pokoj s položenou plovoucí podlahou a velkým oknem',
-    credit: 'Pexels — Max Vakhtbovycn',
-  },
-  {
-    key: 'projekt-bytove-jadro',
-    url: 'https://images.pexels.com/photos/8143708/pexels-photo-8143708.jpeg?auto=compress&cs=tinysrgb&w=1880',
-    alt: 'Zrekonstruovaná koupelna se sprchovým koutem a šedým obkladem',
-    credit: 'Pexels',
-  },
-  {
-    key: 'projekt-krov',
-    url: 'https://images.pexels.com/photos/15456627/pexels-photo-15456627.jpeg?auto=compress&cs=tinysrgb&w=1880',
-    alt: 'Nový dřevěný krov s vazníky proti modré obloze',
-    credit: 'Pexels',
-  },
-  {
-    key: 'projekt-podlaha',
-    url: 'https://images.pexels.com/photos/7031621/pexels-photo-7031621.jpeg?auto=compress&cs=tinysrgb&w=1880',
-    alt: 'Pokoj s čerstvě položenou plovoucí podlahou a bílými stěnami',
-    credit: 'Pexels — Max Vakhtbovycn',
-  },
-  {
-    key: 'projekt-tepelne-cerpadlo',
-    url: 'https://images.pexels.com/photos/38067300/pexels-photo-38067300.jpeg?auto=compress&cs=tinysrgb&w=1880',
-    alt: 'Venkovní jednotka tepelného čerpadla u zdi rodinného domu',
-    credit: 'Pexels',
-  },
-  {
-    key: 'projekt-elektro-byt',
-    url: 'https://images.pexels.com/photos/7937305/pexels-photo-7937305.jpeg?auto=compress&cs=tinysrgb&w=1880',
-    alt: 'Řada instalačních krabic s vodiči zapuštěná ve zdi',
-    credit: 'Pexels',
-  },
-  {
-    key: 'projekt-novostavba',
-    url: 'https://images.pexels.com/photos/31406334/pexels-photo-31406334.jpeg?auto=compress&cs=tinysrgb&w=1880',
-    alt: 'Dokončený rodinný dům s cihlovou fasádou a garáží',
-    credit: 'Pexels',
-  },
-  {
-    key: 'projekt-krytina',
-    url: 'https://images.pexels.com/photos/37677394/pexels-photo-37677394.jpeg?auto=compress&cs=tinysrgb&w=1880',
-    alt: 'Pokrývač pokládá novou krytinu na střeše rodinného domu',
-    credit: 'Pexels',
-  },
-  {
-    key: 'o-nas-parta',
-    url: 'https://images.pexels.com/photos/8961555/pexels-photo-8961555.jpeg?auto=compress&cs=tinysrgb&w=1880',
-    alt: 'Dva řemeslníci na stavbě rodinného domu při práci',
-    credit: 'Pexels — Mikael Blomkvist',
-  },
 ]
 
 /**
@@ -634,46 +545,46 @@ const context = { disableRevalidate: true }
 
 payload.logger.info('— Fotografie...')
 
+/*
+ * Každá fotka jde nahoru ve vlastním procesu — přes Local API se totiž do
+ * Vercel Blobu zapíše jen první upload v procesu a další skončí jako médium
+ * bez souboru (podrobnosti v `upload-media.ts`). Spuštění procesu navíc je
+ * levnější než knihovna plná mrtvých odkazů.
+ */
 const mediaIds = new Map<string, number>()
 
 for (const item of MEDIA) {
-  const filename = `${item.key}.jpg`
-  const found = await payload.find({
-    collection: 'media',
-    depth: 0,
-    limit: 1,
-    pagination: false,
-    where: { filename: { equals: filename } },
+  const result = spawnSync('pnpm', ['tsx', 'scripts/upload-media.ts', item.key], {
+    stdio: ['ignore', 'pipe', 'pipe'],
+    encoding: 'utf8',
+    env: { ...process.env, NODE_ENV: 'production' },
   })
 
-  if (found.docs[0]) {
-    mediaIds.set(item.key, found.docs[0].id)
-    payload.logger.info(`  ${filename} už v knihovně je`)
-    continue
+  const line = `${result.stdout}${result.stderr}`
+    .split('\n')
+    .map((text) => text.trim())
+    .filter(Boolean)
+    .at(-1)
+
+  if (result.status === 0) {
+    payload.logger.info(`  ${line}`)
+  } else {
+    payload.logger.error(`  ${line ?? item.key} — pokračuji bez fotky`)
   }
+}
 
-  const res = await fetch(item.url)
-  if (!res.ok) {
-    payload.logger.warn(`  ${filename} se nepodařilo stáhnout (${res.status}) — přeskakuji`)
-    continue
-  }
-  const data = Buffer.from(await res.arrayBuffer())
+// Identifikátory čteme z databáze, ne z výstupu procesu — platí i pro fotky,
+// které tam ležely už z minula.
+const uploaded = await payload.find({
+  collection: 'media',
+  depth: 0,
+  limit: 200,
+  pagination: false,
+})
 
-  const created = await payload.create({
-    collection: 'media',
-    depth: 0,
-    context,
-    data: {
-      alt: item.alt,
-      caption: richText(null, [
-        `Stock fotografie (${item.credit}). Nahraďte vlastní fotografií hotové práce.`,
-      ]) as never,
-    },
-    file: { name: filename, data, mimetype: 'image/jpeg', size: data.byteLength },
-  })
-
-  mediaIds.set(item.key, created.id)
-  payload.logger.info(`  nahráno ${filename}`)
+for (const doc of uploaded.docs) {
+  const key = (doc.filename ?? '').replace(/\.jpg$/, '')
+  if (MEDIA.some((item) => item.key === key)) mediaIds.set(key, doc.id)
 }
 
 /* ---------------------------------------------------------------- služby -- */
@@ -1094,6 +1005,23 @@ for (const slug of ['contact']) {
     })
     payload.logger.info(`  /${slug} stažena z publikovaných`)
   }
+}
+
+/*
+ * Hlavička nese čtyři odkazy. „Časté dotazy“ v ní nejsou: je to kotva do
+ * /o-nas a v hlavní navigaci soutěží s cestou ke službám a realizacím.
+ * V patičce zůstávají.
+ */
+payload.logger.info('— Navigace...')
+
+const header = await payload.findGlobal({ slug: 'header', depth: 0 })
+const navItems = (header.navItems ?? []).filter(
+  (item) => !(item.link?.url ?? '').includes('caste-dotazy'),
+)
+
+if (navItems.length !== (header.navItems ?? []).length) {
+  await payload.updateGlobal({ slug: 'header', data: { navItems }, depth: 0, context })
+  payload.logger.info('  „Časté dotazy“ z hlavičky pryč')
 }
 
 payload.logger.info('Hotovo.')

@@ -421,14 +421,13 @@ await payload.updateGlobal({
   slug: 'header',
   data: {
     /*
-     * Pět položek. „Časté dotazy“ jsou kotva do /o-nas, ne vlastní stránka —
-     * jedna otázka a odpověď nezaslouží celou obrazovku.
+     * Čtyři položky. „Časté dotazy“ v hlavičce nejsou — jsou to kotva do
+     * /o-nas a v patičce, kde nekonkurují cestě ke službám a realizacím.
      */
     navItems: [
       { link: { type: 'custom', label: 'Služby', url: '/sluzby' } },
       { link: { type: 'custom', label: 'Realizace', url: '/realizace' } },
       { link: { type: 'custom', label: 'O nás', url: '/o-nas' } },
-      { link: { type: 'custom', label: 'Časté dotazy', url: '/o-nas#caste-dotazy' } },
       { link: { type: 'custom', label: 'Kontakt', url: '/kontakt' } },
     ],
     cta: [{ link: { type: 'custom', label: 'Poptávka', url: '/kontakt' } }],
