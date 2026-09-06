@@ -69,7 +69,7 @@ export const ContactDetailsBlock: React.FC<Props> = async ({
   if (!entries.length) return null
 
   return (
-    <section className="container">
+    <section className="container py-14 md:py-[104px]">
       <SectionHeader eyebrow={eyebrow} heading={heading} lead={lead} />
       <dl className="mt-10 grid gap-6 sm:grid-cols-2">
         {entries.map(({ key, icon: Icon, label, value, href, note }) => (

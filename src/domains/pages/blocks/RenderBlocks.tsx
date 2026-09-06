@@ -20,9 +20,24 @@ import { StatsBlock } from './Stats/Component'
 import { TestimonialsBlock } from './Testimonials/Component'
 import { TextWithImageBlock } from './TextWithImage/Component'
 
+/**
+ * `beforeAfter`, `gallery` a `mediaBlock` slouží zároveň uvnitř rich textu, kde
+ * vlastní rytmus sekce nechtějí. Na úrovni layoutu jim ho dodá tenký obal —
+ * jinde si každý blok svoji sekci i rytmus nese sám (viz níže).
+ */
+const asSection = <P extends object>(Component: React.ComponentType<P>): React.FC<P> => {
+  const Wrapped: React.FC<P> = (props) => (
+    <section className="container py-14 md:py-[104px]">
+      <Component {...props} />
+    </section>
+  )
+  Wrapped.displayName = `asSection(${Component.displayName ?? Component.name ?? 'Block'})`
+  return Wrapped
+}
+
 const blockComponents = {
   archive: ArchiveBlock,
-  beforeAfter: BeforeAfterBlock,
+  beforeAfter: asSection(BeforeAfterBlock),
   brands: BrandsBlock,
   contactDetails: ContactDetailsBlock,
   content: ContentBlock,
@@ -30,8 +45,8 @@ const blockComponents = {
   faq: FAQBlock,
   featureGrid: FeatureGridBlock,
   formBlock: FormBlock,
-  gallery: GalleryBlock,
-  mediaBlock: MediaBlock,
+  gallery: asSection(GalleryBlock),
+  mediaBlock: asSection(MediaBlock),
   process: ProcessBlock,
   projectShowcase: ProjectShowcaseBlock,
   servicesGrid: ServicesGridBlock,
@@ -60,11 +75,15 @@ export const RenderBlocks: React.FC<{
           const Block = blockComponents[blockType as keyof typeof blockComponents]
 
           if (Block) {
+            /*
+             * Bez obalu a bez marginu: každý blok si nese vlastní <section>,
+             * vlastní svislý rytmus (`py-14 md:py-[104px]`) a sám rozhoduje,
+             * jestli sedí v `.container`, nebo jde přes celou šířku okna
+             * (modrá plocha, pás fotografií).
+             */
             return (
-              <div className="my-16" key={index}>
-                {/* @ts-expect-error there may be some mismatch between the expected types here */}
-                <Block {...block} disableInnerContainer />
-              </div>
+              // @ts-expect-error there may be some mismatch between the expected types here
+              <Block {...block} disableInnerContainer key={index} />
             )
           }
         }

@@ -28,7 +28,7 @@ export const ProjectShowcaseBlock: React.FC<Props> = async ({
   if (!projects.length) return null
 
   return (
-    <section className="container">
+    <section className="container py-14 md:py-[104px]">
       <div className="flex flex-wrap items-end justify-between gap-6">
         <SectionHeader eyebrow={eyebrow} heading={heading} lead={lead} />
         {!!links?.length && (

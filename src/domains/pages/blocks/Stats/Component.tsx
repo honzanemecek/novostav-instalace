@@ -60,7 +60,7 @@ export const StatsBlock: React.FC<Props> = ({ eyebrow, heading, lead, items }) =
   const currentYear = new Date().getFullYear()
 
   return (
-    <section className="container">
+    <section className="container py-14 md:py-[104px]">
       <SectionHeader eyebrow={eyebrow} heading={heading} lead={lead} />
       <dl className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
         {items.map((item, i) => (

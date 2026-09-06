@@ -17,7 +17,7 @@ export const FAQBlock: React.FC<Props> = ({ eyebrow, heading, lead, items }) => 
   if (!items?.length) return null
 
   return (
-    <section className="container">
+    <section className="container py-14 md:py-[104px]">
       <SectionHeader eyebrow={eyebrow} heading={heading} lead={lead} />
       <Accordion
         className="mt-10 max-w-3xl divide-y divide-border border-y border-border"

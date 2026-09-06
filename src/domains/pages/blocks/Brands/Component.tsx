@@ -12,7 +12,7 @@ export const BrandsBlock: React.FC<Props> = ({ eyebrow, heading, lead, items }) 
   if (!items?.length) return null
 
   return (
-    <section>
+    <section className="py-14 md:py-[104px]">
       <div className="container">
         <SectionHeader eyebrow={eyebrow} heading={heading} lead={lead} />
       </div>

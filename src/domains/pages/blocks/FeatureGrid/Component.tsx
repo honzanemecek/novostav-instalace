@@ -16,7 +16,7 @@ export const FeatureGridBlock: React.FC<Props> = ({ eyebrow, heading, lead, colu
   if (!items?.length) return null
 
   return (
-    <section className="container">
+    <section className="container py-14 md:py-[104px]">
       <SectionHeader eyebrow={eyebrow} heading={heading} lead={lead} />
       <ul className={cn('mt-10 grid gap-6', columnClasses[columns ?? '3'])}>
         {items.map((item, i) => (

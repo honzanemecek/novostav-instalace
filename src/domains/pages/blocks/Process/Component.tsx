@@ -8,7 +8,7 @@ export const ProcessBlock: React.FC<Props> = ({ eyebrow, heading, lead, steps })
   if (!steps?.length) return null
 
   return (
-    <section className="container">
+    <section className="container py-14 md:py-[104px]">
       <SectionHeader eyebrow={eyebrow} heading={heading} lead={lead} />
       <ol className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
         {steps.map((step, i) => (

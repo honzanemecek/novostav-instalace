@@ -13,7 +13,7 @@ export const TextWithImageBlock: React.FC<Props> = ({
   richText,
   links,
 }) => (
-  <section className="container">
+  <section className="container py-14 md:py-[104px]">
     <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
       <div
         className={cn(
