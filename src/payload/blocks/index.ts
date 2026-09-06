@@ -9,6 +9,7 @@ import {
   CallToActionBlockConfig,
   ContactDetailsBlockConfig,
   ContentBlockConfig,
+  FactsBlockConfig,
   FAQBlockConfig,
   FeatureGridBlockConfig,
   PhotoStripBlockConfig,
@@ -42,6 +43,7 @@ const foundation: Block[] = [
 /** Marketing sections. */
 const marketing: Block[] = [
   FeatureGridBlockConfig,
+  FactsBlockConfig,
   RelatedServicesBlockConfig,
   StatsBlockConfig,
   ProcessBlockConfig,
@@ -73,6 +75,7 @@ export const pageLayoutBlocks: Block[] = [
 export const serviceLayoutBlocks: Block[] = [
   ...foundation,
   FeatureGridBlockConfig,
+  FactsBlockConfig,
   RelatedServicesBlockConfig,
   ProcessBlockConfig,
   FAQBlockConfig,

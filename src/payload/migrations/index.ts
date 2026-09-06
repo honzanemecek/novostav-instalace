@@ -4,6 +4,7 @@ import * as migration_20260906_163434_redesign_layout_globals from './20260906_1
 import * as migration_20260906_164307_redesign_homepage_blocks from './20260906_164307_redesign_homepage_blocks';
 import * as migration_20260906_164640_redesign_service_blocks from './20260906_164640_redesign_service_blocks';
 import * as migration_20260906_165406_redesign_contact_inquiry from './20260906_165406_redesign_contact_inquiry';
+import * as migration_20260906_165753_redesign_about_facts from './20260906_165753_redesign_about_facts';
 
 export const migrations = [
   {
@@ -34,6 +35,11 @@ export const migrations = [
   {
     up: migration_20260906_165406_redesign_contact_inquiry.up,
     down: migration_20260906_165406_redesign_contact_inquiry.down,
-    name: '20260906_165406_redesign_contact_inquiry'
+    name: '20260906_165406_redesign_contact_inquiry',
+  },
+  {
+    up: migration_20260906_165753_redesign_about_facts.up,
+    down: migration_20260906_165753_redesign_about_facts.down,
+    name: '20260906_165753_redesign_about_facts'
   },
 ];

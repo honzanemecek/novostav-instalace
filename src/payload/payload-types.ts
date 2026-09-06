@@ -258,6 +258,7 @@ export interface Page {
     | GalleryBlock
     | BeforeAfterBlock
     | FeatureGridBlock
+    | FactsBlock
     | RelatedServicesBlock
     | StatsBlock
     | ProcessBlock
@@ -343,6 +344,7 @@ export interface Service {
         | GalleryBlock
         | BeforeAfterBlock
         | FeatureGridBlock
+        | FactsBlock
         | RelatedServicesBlock
         | ProcessBlock
         | FAQBlock
@@ -634,6 +636,14 @@ export interface Project {
 export interface TextWithImageBlock {
   image: number | Media;
   imagePosition?: ('left' | 'right') | null;
+  /**
+   * Photo and text panel edge to edge, split by a hairline.
+   */
+  fullBleed?: boolean | null;
+  /**
+   * The photo printed into the brand blue. An accent moment only.
+   */
+  duotone?: boolean | null;
   richText?: {
     root: {
       type: string;
@@ -1271,6 +1281,36 @@ export interface FeatureGridBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'featureGrid';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FactsBlock".
+ */
+export interface FactsBlock {
+  /**
+   * Short label above the heading.
+   */
+  eyebrow?: string | null;
+  heading?: string | null;
+  /**
+   * One or two sentences under the heading.
+   */
+  lead?: string | null;
+  /**
+   * Founding year, years in the trade, service area, VAT — edited in one place.
+   */
+  autoFromCompany?: boolean | null;
+  onSlab?: boolean | null;
+  items?:
+    | {
+        label: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'facts';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1975,6 +2015,7 @@ export interface PagesSelect<T extends boolean = true> {
         gallery?: T | GalleryBlockSelect<T>;
         beforeAfter?: T | BeforeAfterBlockSelect<T>;
         featureGrid?: T | FeatureGridBlockSelect<T>;
+        facts?: T | FactsBlockSelect<T>;
         relatedServices?: T | RelatedServicesBlockSelect<T>;
         stats?: T | StatsBlockSelect<T>;
         process?: T | ProcessBlockSelect<T>;
@@ -2036,6 +2077,8 @@ export interface ContentBlockSelect<T extends boolean = true> {
 export interface TextWithImageBlockSelect<T extends boolean = true> {
   image?: T;
   imagePosition?: T;
+  fullBleed?: T;
+  duotone?: T;
   richText?: T;
   links?:
     | T
@@ -2134,6 +2177,26 @@ export interface FeatureGridBlockSelect<T extends boolean = true> {
               label?: T;
               id?: T;
             };
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FactsBlock_select".
+ */
+export interface FactsBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  heading?: T;
+  lead?: T;
+  autoFromCompany?: T;
+  onSlab?: T;
+  items?:
+    | T
+    | {
+        label?: T;
+        value?: T;
         id?: T;
       };
   id?: T;
@@ -2403,6 +2466,7 @@ export interface ServicesSelect<T extends boolean = true> {
         gallery?: T | GalleryBlockSelect<T>;
         beforeAfter?: T | BeforeAfterBlockSelect<T>;
         featureGrid?: T | FeatureGridBlockSelect<T>;
+        facts?: T | FactsBlockSelect<T>;
         relatedServices?: T | RelatedServicesBlockSelect<T>;
         process?: T | ProcessBlockSelect<T>;
         faq?: T | FAQBlockSelect<T>;

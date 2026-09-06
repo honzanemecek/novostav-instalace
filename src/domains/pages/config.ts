@@ -6,6 +6,7 @@ export { CallToAction as CallToActionBlockConfig } from './blocks/CallToAction/c
 export { ContactDetails as ContactDetailsBlockConfig } from './blocks/ContactDetails/config'
 export { Content as ContentBlockConfig } from './blocks/Content/config'
 export { FAQ as FAQBlockConfig } from './blocks/FAQ/config'
+export { Facts as FactsBlockConfig } from './blocks/Facts/config'
 export { FeatureGrid as FeatureGridBlockConfig } from './blocks/FeatureGrid/config'
 export { PhotoStrip as PhotoStripBlockConfig } from './blocks/PhotoStrip/config'
 export { Process as ProcessBlockConfig } from './blocks/Process/config'

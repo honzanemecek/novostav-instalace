@@ -241,6 +241,10 @@
   }
   a:hover { @apply text-accent-hover; text-decoration-color: currentColor; }
   :focus-visible { @apply outline-2 outline-ring outline-offset-2; }
+  /* Kotva „Časté dotazy“ v menu — plynule, ale jen když si to čtenář nezakázal. */
+  @media (prefers-reduced-motion: no-preference) {
+    html { scroll-behavior: smooth; }
+  }
   ::selection { @apply bg-accent text-accent-foreground; }
 }
 

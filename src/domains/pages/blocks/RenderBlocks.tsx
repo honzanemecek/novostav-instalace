@@ -8,6 +8,7 @@ import { BrandsBlock } from './Brands/Component'
 import { CallToActionBlock } from './CallToAction/Component'
 import { ContactDetailsBlock } from './ContactDetails/Component'
 import { ContentBlock } from './Content/Component'
+import { FactsBlock } from './Facts/Component'
 import { FAQBlock } from './FAQ/Component'
 import { FeatureGridBlock } from './FeatureGrid/Component'
 import { FormBlock, InquiryBlock } from '@/domains/forms'
@@ -43,6 +44,7 @@ const blockComponents = {
   contactDetails: ContactDetailsBlock,
   content: ContentBlock,
   cta: CallToActionBlock,
+  facts: FactsBlock,
   faq: FAQBlock,
   featureGrid: FeatureGridBlock,
   formBlock: FormBlock,
