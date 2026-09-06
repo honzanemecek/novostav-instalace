@@ -1,10 +1,11 @@
 'use client'
 
-import type { Theme } from '../Theme/types'
-
 import React, { createContext, useCallback, use, useState } from 'react'
 
 import canUseDOM from '@/shared/utils/canUseDOM'
+
+/** Světlé nebo tmavé; web jede na světlém, hlavička si smí vyžádat překlopení. */
+export type Theme = 'dark' | 'light'
 
 export interface ContextType {
   headerTheme?: Theme | null

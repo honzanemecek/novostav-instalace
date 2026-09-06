@@ -7,16 +7,10 @@ import React from 'react'
 
 import type { Page, Post, Project, Service } from '@/payload/payload-types'
 
-/**
- * Route prefix per linkable collection. Keep in sync with the folders under
- * src/app/(frontend) — a missing entry silently produces a 404 link.
- */
-export const collectionPrefixes = {
-  pages: '',
-  services: '/sluzby',
-  projects: '/realizace',
-  posts: '/posts',
-} as const
+import { cmsLinkHref, collectionPrefixes } from './href'
+
+export { cmsLinkHref, collectionPrefixes } from './href'
+export type { CMSLinkTarget } from './href'
 
 /**
  * The CMS stores `appearance` as 'default' | 'outline' (see payload/fields/link.ts)
@@ -45,22 +39,6 @@ export type CMSLinkType = {
   full?: boolean
   type?: 'custom' | 'reference' | null
   url?: string | null
-}
-
-/**
- * The un-localised target of a CMS link — `/sluzby/strechy`, `tel:…`, `https://…`.
- *
- * Exported so the header can tell which nav item is the current page without
- * rebuilding the prefix map (and drifting from it).
- */
-export const cmsLinkHref = (
-  link?: Pick<CMSLinkType, 'type' | 'reference' | 'url'> | null,
-): string | null => {
-  if (!link) return null
-  if (link.type === 'reference' && typeof link.reference?.value === 'object' && link.reference.value.slug) {
-    return `${collectionPrefixes[link.reference.relationTo] ?? ''}/${link.reference.value.slug}`
-  }
-  return link.url ?? null
 }
 
 export const CMSLink: React.FC<CMSLinkType> = (props) => {

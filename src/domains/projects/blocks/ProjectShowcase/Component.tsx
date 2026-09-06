@@ -4,7 +4,7 @@ import type { ProjectShowcaseBlock as Props } from '@/payload/payload-types'
 
 import { RuleLink } from '@/shared/components/RuleLink/RuleLink'
 import { SectionHeader } from '@/shared/components/SectionHeader'
-import { cmsLinkHref } from '@/shared/components/Link'
+import { cmsLinkHref } from '@/shared/components/Link/href'
 import { getProjects } from '../../queries/getProjects'
 import { ProjectCard } from '../../ui/ProjectCard'
 

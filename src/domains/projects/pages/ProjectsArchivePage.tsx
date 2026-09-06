@@ -41,7 +41,7 @@ export async function ProjectsArchivePage({
       <PageHero
         eyebrow="Portfolio"
         heading="Realizace"
-        lead="Ukázky dokončených prací — od rekonstrukcí bytových jader po střechy a elektroinstalace."
+        lead="Dokončené práce od rekonstrukcí bytových jader po střechy a elektroinstalace. Filtrujte podle řemesla, které řešíte."
         className="pb-8 md:pb-12"
       />
 

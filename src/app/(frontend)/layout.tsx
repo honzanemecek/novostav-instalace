@@ -6,7 +6,6 @@ import React from 'react'
 
 import { AdminBar } from '@/domains/users'
 import { Providers } from '@/domains/layout'
-import { InitTheme } from '@/domains/layout'
 import { mergeOpenGraph } from '@/shared/utils/mergeOpenGraph'
 import { draftMode } from 'next/headers'
 
@@ -25,9 +24,18 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const { isEnabled } = await draftMode()
 
   return (
-    <html className={cn(plexSans.variable, 'font-sans')} lang="cs" suppressHydrationWarning>
+    /*
+     * Světlé téma je součástí návrhu („Bílá hala“), ne preference prohlížeče:
+     * `data-theme` proto sedí staticky na serveru. Tmavé tokeny v globals.css
+     * zůstávají — stačí přepnout tenhle atribut.
+     */
+    <html
+      className={cn(plexSans.variable, 'font-sans')}
+      data-theme="light"
+      lang="cs"
+      suppressHydrationWarning
+    >
       <head>
-        <InitTheme />
         <link href="/favicon.ico" rel="icon" sizes="32x32" />
         <link href="/favicon.svg" rel="icon" type="image/svg+xml" />
       </head>

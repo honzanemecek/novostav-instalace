@@ -16,9 +16,9 @@ export async function ServicesArchivePage({ locale = 'cs' }: { locale?: TypedLoc
   return (
     <article>
       <PageHero
-        eyebrow="Co děláme"
-        heading="Naše služby"
-        lead="Stavební práce, střechy, elektro, voda, topení i podlahy — jeden dodavatel na celý dům."
+        eyebrow="Služby"
+        heading="Šest řemesel pod jednou střechou"
+        lead="Nemusíte hledat pět firem a hlídat, kdo na koho čeká. Domluvíte se s námi jednou, koordinaci profesí řešíme my a předáme hotové dílo s revizemi."
         className="pb-10 md:pb-14"
       />
 
