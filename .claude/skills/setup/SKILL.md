@@ -5,6 +5,10 @@ description: Initialize this fresh payload-next-starter clone — personalize si
 
 # Project setup
 
+> **This project has left Vercel.** It now runs self-hosted on Dokploy with its own
+> Postgres and local media storage — see `docs/DEPLOY.md`. The Vercel, Neon and Blob
+> phases below describe the original starter and no longer apply here.
+
 Take this fresh clone to a personalized, locally running, production-deployed
 state. Work through the phases **in order**. Every phase starts by checking
 whether its work is already done — if so, say so and move on. Never continue

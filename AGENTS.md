@@ -18,9 +18,9 @@ use them; no stock imagery).
 ## Stack
 
 Payload CMS 3 (`3.84.1`, all `@payloadcms/*` pinned together) + Next.js 16 App Router +
-React 19.2, on Vercel. Neon Postgres via `@payloadcms/db-vercel-postgres`, Vercel Blob for
-media, Tailwind 4 (CSS-first), shadcn/ui, motion 13 + motion-primitives. Domain-driven
-layout. pnpm.
+React 19.2. Self-hosted on Dokploy (Docker Compose): Postgres via `@payloadcms/db-postgres`,
+media on local disk, served by Payload. Tailwind 4 (CSS-first), shadcn/ui, motion 13 +
+motion-primitives. Domain-driven layout. pnpm. Deployment: [docs/DEPLOY.md](docs/DEPLOY.md).
 
 ## Locale: Czech first
 
@@ -92,7 +92,7 @@ component in `pages/blocks/RenderBlocks.tsx` — the palettes pick it up everywh
 | `frontend-design` | designing or building any user-facing UI — layout, typography, colour, states, accessibility, page anatomy |
 | `shadcn` | adding/styling shadcn components, `components.json`, registries, the Tailwind 4 token layer in `globals.css` |
 | `motion` | animation of any kind — scroll reveals, hover effects, counters, galleries, before/after sliders |
-| `neon` / `neon-postgres` | database provisioning, branching, connection strings |
+| `neon` / `neon-postgres` | only for the one-off move off Neon (the site no longer uses it) |
 | `setup` | first run in a fresh clone, or re-running a failed setup |
 
 Skill files live in `.claude/skills/<name>/SKILL.md` and are plain Markdown — readable by

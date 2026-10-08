@@ -8,8 +8,9 @@ description: Use when working with Payload CMS 3 in this repo - collections, glo
 Version pin: **all `payload` and `@payloadcms/*` packages move together** (currently
 `3.84.1`). Never bump one in isolation — mismatched versions break the admin bundle.
 
-Config entry: `src/payload/payload.config.ts`. Adapters: `@payloadcms/db-vercel-postgres`
-(Neon), `@payloadcms/storage-vercel-blob`, `@payloadcms/richtext-lexical`.
+Config entry: `src/payload/payload.config.ts`. Adapters: `@payloadcms/db-postgres`,
+`@payloadcms/richtext-lexical`. Uploads go to local disk (`MEDIA_DIR`, default
+`src/public/media`) and are served by Payload at `/api/media/file/<name>`.
 
 ## Where things live (domain-driven)
 
@@ -186,8 +187,10 @@ pnpm payload migrate                 # apply (also runs in CI via `pnpm ci`)
 pnpm payload migrate:status
 ```
 
-Never hand-edit an applied migration; add a new one. `pnpm ci` = `payload migrate && pnpm build`
-— that's what Vercel runs.
+Never hand-edit an applied migration; add a new one. In production the server applies
+pending migrations itself at start (`prodMigrations` + `src/instrumentation.ts`); the
+Docker build runs `pnpm ci` = `payload migrate && pnpm build` against a throwaway database.
+See `docs/DEPLOY.md`.
 
 ## After any schema or admin-component change
 
