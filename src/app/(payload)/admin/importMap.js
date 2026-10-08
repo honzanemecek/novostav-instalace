@@ -26,7 +26,6 @@ import { RowLabel as RowLabel_a7c8769cc0a6a3f33cee7928b2ffc6ed } from '@/domains
 import { RowLabel as RowLabel_d35fda641eb41d98d3bd7ae1103e9a59 } from '@/domains/layout/footer/RowLabel'
 import { default as default_50dc190388f256a5f8bac8f85c742c47 } from '@/payload/components/BeforeDashboard'
 import { default as default_7f522de532f470eaadca0f01b0615999 } from '@/payload/components/BeforeLogin'
-import { VercelBlobClientUploadHandler as VercelBlobClientUploadHandler_16c82c5e25f430251a3e3ba57219ff4e } from '@payloadcms/storage-vercel-blob/client'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 
 /** @type import('payload').ImportMap */
@@ -59,6 +58,5 @@ export const importMap = {
   "@/domains/layout/footer/RowLabel#RowLabel": RowLabel_d35fda641eb41d98d3bd7ae1103e9a59,
   "@/payload/components/BeforeDashboard#default": default_50dc190388f256a5f8bac8f85c742c47,
   "@/payload/components/BeforeLogin#default": default_7f522de532f470eaadca0f01b0615999,
-  "@payloadcms/storage-vercel-blob/client#VercelBlobClientUploadHandler": VercelBlobClientUploadHandler_16c82c5e25f430251a3e3ba57219ff4e,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
 }

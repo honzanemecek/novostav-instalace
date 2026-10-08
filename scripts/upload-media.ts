@@ -1,15 +1,12 @@
 /**
  * Nahraje do knihovny médií JEDNU fotografii z `design-media.ts`.
  *
- * Proč jednu na jedno spuštění: v tomhle projektu se přes Local API zapíše do
- * Vercel Blobu jen první upload v procesu. Druhý a další skončí tak, že Payload
- * dokument založí, adaptér chybu spolkne a v knihovně zůstane médium bez
- * souboru — web na něm pak vrací 404. Ověřeno: první soubor 200, druhý 404,
- * a to i s novým názvem, pauzou i opakováním. Zápis přes REST API Blobu přitom
- * projde pokaždé, takže úložiště v pořádku je.
- *
- * `populate-design-content.ts` proto tenhle skript spouští jako samostatný
- * proces pro každou fotku. Ručně:
+ * Proč jednu na jedno spuštění: dokud média ležela ve Vercel Blobu, zapsal se
+ * přes Local API jen první upload v procesu. Dnes jsou soubory na lokálním
+ * disku (`MEDIA_DIR`, výchozí `src/public/media`), takže to už neplatí, ale
+ * `populate-design-content.ts` skript dál spouští jako samostatný proces pro
+ * každou fotku a nic na tom nevadí. Soubor se zapíše tam, kde skript běží:
+ * lokálně do vývojového úložiště, ne na produkční server. Ručně:
  *
  *   NODE_ENV=production pnpm tsx scripts/upload-media.ts sluzba-strechy
  *   NODE_ENV=production pnpm tsx scripts/upload-media.ts --list
@@ -59,35 +56,12 @@ const payload = await getPayload({ config })
 const context = { disableRevalidate: true }
 const filename = `${item.key}.jpg`
 
-const blobToken = process.env.BLOB_READ_WRITE_TOKEN
+const uploadConfig = payload.collections.media.config.upload
+const staticDir = typeof uploadConfig === 'object' ? uploadConfig.staticDir : undefined
 
-/**
- * Je soubor opravdu v úložišti?
- *
- * Ptáme se výpisu úložiště, ne veřejné adresy: ta chvíli po zápisu vrací 404,
- * i když soubor v Blobu leží. Ověřovat přes ni znamená prohlásit povedený
- * upload za chybu — a v předchozí verzi tohohle skriptu to vedlo k tomu, že
- * čerstvě nahranou fotku rovnou smazal.
- */
-const stored = async (name: string): Promise<boolean> => {
-  if (!blobToken) return true
-
-  for (let attempt = 1; attempt <= 3; attempt++) {
-    const url = new URL('https://blob.vercel-storage.com')
-    url.searchParams.set('prefix', name)
-    url.searchParams.set('limit', '10')
-    const res = await fetch(url, { headers: { authorization: `Bearer ${blobToken}` } })
-
-    if (res.ok) {
-      const body = (await res.json()) as { blobs: { pathname: string }[] }
-      if (body.blobs.some((blob) => blob.pathname === name)) return true
-    }
-
-    await new Promise((resolve) => setTimeout(resolve, attempt * 2000))
-  }
-
-  return false
-}
+/** Je soubor opravdu v úložišti, tedy na disku v adresáři médií? */
+const stored = async (name: string): Promise<boolean> =>
+  Boolean(staticDir) && fs.existsSync(path.join(staticDir!, name))
 
 const found = await payload.find({
   collection: 'media',
@@ -105,10 +79,9 @@ if (existing && (await stored(filename))) {
 
 /*
  * Médium v databázi je, ale soubor v úložišti chybí. Dokument musí pryč —
- * jinak by Payload nový upload pojmenoval „…-1.jpg“. Smazat a hned nahrát
- * ve stejném procesu ale nejde: mazání v Blobu doběhne až po novém zápisu
- * a smaže rovnou tu čerstvou fotku (ověřeno — soubor pak vrací 404).
- * Uklidíme tedy tady a nahráváme v novém procesu.
+ * jinak by Payload nový upload pojmenoval „…-1.jpg“. Uklidíme tady a
+ * nahráváme v novém procesu (pozůstatek z doby Vercel Blobu, kde mazání
+ * doběhlo až po novém zápisu; neškodí).
  */
 if (existing) {
   await payload.delete({ collection: 'media', id: existing.id, context })
@@ -177,9 +150,8 @@ const doc = await payload.create({
 })
 
 /*
- * Dokument po neúspěchu NEMAŽEME: mazání v Blobu doběhne se zpožděním a
- * shodilo by i soubor, který se mezitím zapsal. Radši zůstane médium
- * k ověření v administraci než ztracená fotka.
+ * Dokument po neúspěchu NEMAŽEME: radši zůstane médium k ověření
+ * v administraci než ztracená fotka.
  */
 if (doc.filename !== filename || !(await stored(filename))) {
   console.error(`${filename} — úložiště zápis nepotvrdilo (dokument ${doc.id} nechávám ke kontrole)`)

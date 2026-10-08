@@ -1,4 +1,4 @@
-import { vercelPostgresAdapter } from '@payloadcms/db-vercel-postgres'
+import { postgresAdapter } from '@payloadcms/db-postgres'
 import { mcpPlugin } from '@payloadcms/plugin-mcp'
 import { en } from '@payloadcms/translations/languages/en'
 import { cs } from '@payloadcms/translations/languages/cs'
@@ -21,7 +21,7 @@ import { plugins } from './plugins'
 import { defaultLexical } from './fields/defaultLexical'
 import { customTranslations } from './i18n/customTranslations'
 import { getServerSideURL } from '@/shared/utils/getURL'
-import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
+import { migrations } from './migrations'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -65,11 +65,14 @@ export default buildConfig({
   },
   // This config helps us configure global or default features that the other editors can inherit
   editor: defaultLexical,
-  db: vercelPostgresAdapter({
+  db: postgresAdapter({
     pool: {
       connectionString: process.env.POSTGRES_URL || '',
     },
     migrationDir: path.resolve(dirname, 'migrations'),
+    // The production server applies pending migrations when Payload connects.
+    // The image is built without a database, so this is the only place they can run.
+    prodMigrations: migrations,
   }),
   collections: [Pages, Services, Projects, Posts, Media, Categories, Users],
   cors: [getServerSideURL()].filter(Boolean),
@@ -83,12 +86,6 @@ export default buildConfig({
   },
   plugins: [
     ...plugins,
-    vercelBlobStorage({
-      collections: {
-        media: true,
-      },
-      token: process.env.BLOB_READ_WRITE_TOKEN || '',
-    }),
     mcpPlugin({
       collections: {
         posts: {
@@ -124,13 +121,15 @@ export default buildConfig({
         const secret = process.env.CRON_SECRET
         if (!secret) return false
 
-        // If there is no logged in user, then check
-        // for the Vercel Cron secret to be present as an
-        // Authorization header:
+        // Without a logged-in user, accept a `Bearer CRON_SECRET` header, so the
+        // queue can still be run by hand: GET /api/payload-jobs/run
         const authHeader = req.headers.get('authorization')
         return authHeader === `Bearer ${secret}`
       },
     },
     tasks: [],
+    // The server is long-running, so Payload runs the queue itself. This is what
+    // publishes documents scheduled with "Schedule publish".
+    autoRun: [{ cron: '*/5 * * * *', queue: 'default', limit: 10 }],
   },
 })

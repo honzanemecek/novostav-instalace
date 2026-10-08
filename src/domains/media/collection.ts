@@ -44,8 +44,10 @@ export const Media: CollectionConfig = {
     },
   ],
   upload: {
-    // Upload to the public/media directory in Next.js making them publicly accessible even outside of Payload
-    staticDir: path.resolve(dirname, '../../public/media'),
+    // Files live on local disk and are served by Payload at /api/media/file/<name>,
+    // so the collection's access control applies. MEDIA_DIR points at the
+    // persistent volume in production; dev falls back to src/public/media.
+    staticDir: process.env.MEDIA_DIR || path.resolve(dirname, '../../public/media'),
     adminThumbnail: 'thumbnail',
     focalPoint: true,
     imageSizes: [

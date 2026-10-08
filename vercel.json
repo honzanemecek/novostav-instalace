@@ -1,9 +1,0 @@
-{
-  "buildCommand": "pnpm run ci",
-  "crons": [
-    {
-      "path": "/api/payload-jobs/run",
-      "schedule": "0 0 * * *"
-    }
-  ]
-}
