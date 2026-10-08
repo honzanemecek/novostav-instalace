@@ -75,6 +75,8 @@ container() {
 pg=$(container postgres)
 web=$(container web)
 web_image=$(docker inspect -f '{{.Config.Image}}' "$web")
+# The stack's network, for the one-off containers below.
+network=$(docker inspect -f '{{range $name, $_ := .NetworkSettings.Networks}}{{println $name}}{{end}}' "$pg" | head -n 1)
 
 # psql against the new database: local socket inside the postgres container,
 # as the user and database the compose file creates.
@@ -211,7 +213,9 @@ SQL
 step "Downloading blobs into the media volume"
 # A one-off container from the web image, with the web container's volumes and
 # user, so files land in MEDIA_DIR owned by the server.
-docker run --rm -i --volumes-from "$web" -e BLOB_READ_WRITE_TOKEN \
+# BLOB_API_URL is only for testing against a stand-in for Vercel's API.
+docker run --rm -i --network "$network" --volumes-from "$web" \
+  -e BLOB_READ_WRITE_TOKEN -e BLOB_API_URL="${BLOB_API_URL:-https://blob.vercel-storage.com}" \
   --entrypoint node "$web_image" --input-type=module - <<'JS'
 import fs from 'node:fs'
 import path from 'node:path'
@@ -224,7 +228,7 @@ const auth = { authorization: `Bearer ${token}` }
 let cursor, listed = 0, fetched = 0, skipped = 0, failed = 0
 
 do {
-  const url = new URL('https://blob.vercel-storage.com')
+  const url = new URL(process.env.BLOB_API_URL)
   url.searchParams.set('limit', '1000')
   if (cursor) url.searchParams.set('cursor', cursor)
   const res = await fetch(url, { headers: auth })
