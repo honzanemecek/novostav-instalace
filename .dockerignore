@@ -1,0 +1,24 @@
+# Keep the Docker build context small and free of local state and secrets.
+.git
+.github
+.next
+.vercel
+node_modules
+**/node_modules
+.env
+.env.*
+!.env.example
+src/public/media
+old_website_photos
+docs
+tests
+test-results
+playwright-report
+blob-report
+.claude
+.agents
+.vscode
+deploy/docker-compose.yml
+deploy/.env*
+*.tsbuildinfo
+.DS_Store

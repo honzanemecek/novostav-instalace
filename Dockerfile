@@ -1,71 +1,59 @@
-# To use this Dockerfile, you have to set `output: 'standalone'` in your next.config.js file.
-# From https://github.com/vercel/next.js/blob/canary/examples/with-docker/Dockerfile
+# Production image, deployed by Dokploy with deploy/docker-compose.yml.
+#
+# The image is built without access to any database. deploy/image/build.sh
+# explains how the build gets around the pages that query Payload.
+#
+# Build arg:  NEXT_PUBLIC_SERVER_URL  the public origin; Next.js inlines it at build
+# Runtime:    see deploy/.env.example
 
-FROM node:22.17.0-alpine AS base
-
-# Install dependencies only when needed
-FROM base AS deps
-# Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
+FROM node:22.23.3-alpine3.24 AS base
 RUN apk add --no-cache libc6-compat
+ENV NEXT_TELEMETRY_DISABLED=1 \
+    COREPACK_ENABLE_DOWNLOAD_PROMPT=0
 WORKDIR /app
+# pnpm at the exact version in package.json's `packageManager`.
+COPY package.json ./
+RUN corepack enable && corepack install
 
-# Install dependencies based on the preferred package manager
-COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
-RUN \
-  if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
-  elif [ -f package-lock.json ]; then npm ci; \
-  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm i --frozen-lockfile; \
-  else echo "Lockfile not found." && exit 1; \
-  fi
+# --- dependencies -----------------------------------------------------------
+FROM base AS deps
+COPY pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
+RUN --mount=type=cache,id=novostav-pnpm-store,target=/root/.cache/pnpm-store \
+    pnpm install --frozen-lockfile --store-dir /root/.cache/pnpm-store
 
-
-# Rebuild the source code only when needed
+# --- build ------------------------------------------------------------------
 FROM base AS builder
-WORKDIR /app
+# Postgres binaries for the throwaway database the build runs against.
+RUN apk add --no-cache postgresql17
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+ARG NEXT_PUBLIC_SERVER_URL
+ENV NEXT_PUBLIC_SERVER_URL=${NEXT_PUBLIC_SERVER_URL}
+RUN sh deploy/image/build.sh
 
-# Next.js collects completely anonymous telemetry data about general usage.
-# Learn more here: https://nextjs.org/telemetry
-# Uncomment the following line in case you want to disable telemetry during the build.
-# ENV NEXT_TELEMETRY_DISABLED 1
-
-RUN \
-  if [ -f yarn.lock ]; then yarn run build; \
-  elif [ -f package-lock.json ]; then npm run build; \
-  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm run build; \
-  else echo "Lockfile not found." && exit 1; \
-  fi
-
-# Production image, copy all the files and run next
-FROM base AS runner
+# --- runtime ----------------------------------------------------------------
+FROM node:22.23.3-alpine3.24 AS runner
 WORKDIR /app
+ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1 \
+    PORT=3000 \
+    HOSTNAME=0.0.0.0 \
+    MEDIA_DIR=/app/media
 
-ENV NODE_ENV production
-# Uncomment the following line in case you want to disable telemetry during runtime.
-# ENV NEXT_TELEMETRY_DISABLED 1
+RUN addgroup -S -g 1001 nodejs && adduser -S -u 1001 -G nodejs nextjs
 
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
-
-# Remove this line if you do not have this folder
-COPY --from=builder /app/public ./public
-
-# Set the correct permission for prerender cache
-RUN mkdir .next
-RUN chown nextjs:nodejs .next
-
-# Automatically leverage output traces to reduce image size
-# https://nextjs.org/docs/advanced-features/output-file-tracing
+# The standalone server traces its own node_modules (sharp and its libvips
+# included); public/ and the static chunks are copied next to it by hand.
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+COPY --chown=nextjs:nodejs deploy/image/start.sh deploy/image/drop-page-cache.sh ./deploy/
+
+# Uploads. The compose file mounts a named volume here; a fresh volume takes
+# this directory's owner, so the server can write to it.
+RUN mkdir -p /app/media && chown nextjs:nodejs /app/media
 
 USER nextjs
-
 EXPOSE 3000
-
-ENV PORT 3000
-
-# server.js is created by next build from the standalone output
-# https://nextjs.org/docs/pages/api-reference/next-config-js/output
-CMD HOSTNAME="0.0.0.0" node server.js
+# The compose file's healthcheck uses busybox wget against /api/users/me.
+CMD ["sh", "/app/deploy/start.sh"]

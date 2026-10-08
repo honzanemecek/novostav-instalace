@@ -1,0 +1,107 @@
+# novostav-instalace.cz, deployed by Dokploy from this repo's `main` branch.
+# Compose path in Dokploy: ./deploy/docker-compose.yml. See docs/DEPLOY.md.
+#
+# No host ports and no Traefik labels: Dokploy adds the route to web:3000 from
+# its Domains tab, and Let's Encrypt with it.
+#
+# Variables come from the Dokploy environment (names in deploy/.env.example):
+#   NEXT_PUBLIC_SERVER_URL  public origin; also a build arg, Next.js inlines it
+#   POSTGRES_PASSWORD       hex only (openssl rand -hex 32), it goes into a URL
+#   PAYLOAD_SECRET          reuse the old one: it encrypts the MCP API keys
+#   PREVIEW_SECRET, CRON_SECRET
+#   BACKUP_DIR              optional, default /srv/novostav-backups
+
+services:
+  web:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_SERVER_URL: ${NEXT_PUBLIC_SERVER_URL}
+    restart: unless-stopped
+    expose:
+      - '3000'
+    environment:
+      NEXT_PUBLIC_SERVER_URL: ${NEXT_PUBLIC_SERVER_URL}
+      POSTGRES_URL: postgres://payload:${POSTGRES_PASSWORD}@postgres:5432/payload
+      PAYLOAD_SECRET: ${PAYLOAD_SECRET}
+      PREVIEW_SECRET: ${PREVIEW_SECRET}
+      CRON_SECRET: ${CRON_SECRET}
+      MEDIA_DIR: /app/media
+    volumes:
+      - media:/app/media
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      # Payload has started (database connected, migrations applied).
+      test: ['CMD', 'wget', '-q', '-O', '/dev/null', 'http://127.0.0.1:3000/api/users/me']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    logging:
+      driver: json-file
+      options: { max-size: 10m, max-file: '5' }
+
+  postgres:
+    image: postgres:17.10-trixie
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: payload
+      POSTGRES_USER: payload
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U payload -d payload -h 127.0.0.1']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    logging:
+      driver: json-file
+      options: { max-size: 10m, max-file: '5' }
+
+  backup:
+    # One dump at start, then every night at 01:45 UTC (02:45/03:45 Prague).
+    # Kept 30 days. Restore: pg_restore --clean --if-exists -d payload <file>
+    image: postgres:17.10-trixie
+    restart: unless-stopped
+    environment:
+      PGHOST: postgres
+      PGUSER: payload
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      PGDATABASE: payload
+    volumes:
+      - ${BACKUP_DIR:-/srv/novostav-backups}:/backups
+    entrypoint: ['/bin/bash', '-c']
+    command:
+      - |
+        umask 077
+        dump() {
+          f=/backups/novostav-$$(date -u +%Y%m%d-%H%M%S).dump
+          if pg_dump --format=custom --file="$$f.part" && mv "$$f.part" "$$f"; then
+            echo "backup: wrote $$f ($$(du -h "$$f" | cut -f1))"
+          else
+            echo "backup: FAILED"; rm -f "$$f.part"
+          fi
+          find /backups -maxdepth 1 -name 'novostav-*.dump' -mtime +29 -delete
+          find /backups -maxdepth 1 -name 'novostav-*.dump.part' -mtime +0 -delete
+        }
+        dump
+        while true; do
+          now=$$(date -u +%s); next=$$(date -u -d 'today 01:45' +%s)
+          [ "$$now" -ge "$$next" ] && next=$$(date -u -d 'tomorrow 01:45' +%s)
+          sleep $$((next - now))
+          dump
+        done
+    depends_on:
+      postgres:
+        condition: service_healthy
+    logging:
+      driver: json-file
+      options: { max-size: 10m, max-file: '5' }
+
+volumes:
+  db-data:
+  media:
