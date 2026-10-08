@@ -1,9 +1,5 @@
-const SITE_URL =
-  process.env.NEXT_PUBLIC_SERVER_URL ||
-  (process.env.VERCEL_PROJECT_PRODUCTION_URL
-    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-    : undefined) ||
-  'https://example.com'
+// Same origin as getServerSideURL(); the Docker build passes it as a build arg.
+const SITE_URL = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
 
 /** @type {import('next-sitemap').IConfig} */
 module.exports = {
