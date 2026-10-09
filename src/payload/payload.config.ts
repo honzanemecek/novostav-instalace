@@ -121,15 +121,17 @@ export default buildConfig({
         const secret = process.env.CRON_SECRET
         if (!secret) return false
 
-        // Without a logged-in user, accept a `Bearer CRON_SECRET` header, so the
-        // queue can still be run by hand: GET /api/payload-jobs/run
+        // Without a logged-in user, accept a `Bearer CRON_SECRET` header. The
+        // `cron` service in deploy/docker-compose.yml calls
+        // GET /api/payload-jobs/run this way every 5 minutes, which is what
+        // publishes documents scheduled with "Schedule publish".
+        //
+        // Not `jobs.autoRun`: that runs outside any request, where the
+        // revalidate hooks' `revalidatePath` throws and the publish rolls back.
         const authHeader = req.headers.get('authorization')
         return authHeader === `Bearer ${secret}`
       },
     },
     tasks: [],
-    // The server is long-running, so Payload runs the queue itself. This is what
-    // publishes documents scheduled with "Schedule publish".
-    autoRun: [{ cron: '*/5 * * * *', queue: 'default', limit: 10 }],
   },
 })

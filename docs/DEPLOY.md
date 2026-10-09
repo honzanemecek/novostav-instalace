@@ -1,9 +1,11 @@
 # Deployment
 
-The site runs self-hosted on Honza's VPS. Dokploy deploys
-[`deploy/docker-compose.yml`](../deploy/docker-compose.yml) from the `main` branch: a push
-to `main` is a production deploy. Dokploy's Traefik routes the domain to `web:3000` and
-handles Let's Encrypt; the compose file has no ports and no Traefik labels.
+The site is built to run self-hosted: [Dokploy](https://dokploy.com) deploys
+[`deploy/docker-compose.yml`](../deploy/docker-compose.yml) from a branch of this repo, and
+Dokploy's Traefik routes the domain to `web:3000` and handles Let's Encrypt. The compose
+file has no ports and no Traefik labels.
+
+Production still runs on Vercel (Neon + Blob) until the move described at the end.
 
 ## Services
 
@@ -12,6 +14,7 @@ handles Let's Encrypt; the compose file has no ports and no Traefik labels.
 | `web` | Next.js + Payload, built from the repo's `Dockerfile` (standalone output, non-root) |
 | `postgres` | Postgres 17, data in the named volume `db-data` |
 | `backup` | `pg_dump --format=custom` at start and nightly at 01:45 UTC into `/srv/novostav-backups` on the host, kept 30 days |
+| `cron` | Calls `GET /api/payload-jobs/run` with `CRON_SECRET` every 5 minutes, which publishes documents scheduled with "Schedule publish" |
 
 Uploaded media live in the named volume `media`, mounted at `/app/media` (`MEDIA_DIR`).
 Payload serves them at `/api/media/file/<name>`, so the collection's access rules apply.
@@ -44,9 +47,11 @@ cache every time ([`deploy/image/start.sh`](../deploy/image/start.sh)), so resta
 `web` picks up data changed outside Payload, such as a restored backup.
 
 On start, before it accepts requests, the server applies pending migrations
-(`prodMigrations`) and starts Payload's job queue, which publishes scheduled documents
-every 5 minutes (`jobs.autoRun`). Both are triggered from
-[`src/instrumentation.ts`](../src/instrumentation.ts).
+(`prodMigrations`), triggered from [`src/instrumentation.ts`](../src/instrumentation.ts).
+
+The job queue is run over HTTP by the `cron` service, not by Payload's in-process
+`jobs.autoRun`: a scheduled publish revalidates pages, and Next.js allows that only
+inside a request. Run in-process, the publish fails and rolls back.
 
 ## Restoring a backup
 

@@ -1,4 +1,4 @@
-# novostav-instalace.cz, deployed by Dokploy from this repo's `main` branch.
+# novostav-instalace.cz as a Dokploy Compose app.
 # Compose path in Dokploy: ./deploy/docker-compose.yml. See docs/DEPLOY.md.
 #
 # No host ports and no Traefik labels: Dokploy adds the route to web:3000 from
@@ -98,6 +98,40 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    logging:
+      driver: json-file
+      options: { max-size: 10m, max-file: '5' }
+
+  cron:
+    # Runs Payload's job queue every 5 minutes, through the web server: this is
+    # what publishes documents scheduled with "Schedule publish". It has to be a
+    # request, because the jobs revalidate pages and Next.js only allows that
+    # inside one. Node reads the secret from its environment, so it never shows
+    # up in a process list.
+    image: node:22.23.3-alpine3.24
+    restart: unless-stopped
+    user: node
+    environment:
+      CRON_SECRET: ${CRON_SECRET}
+    command:
+      - node
+      - -e
+      - |
+        const url = 'http://web:3000/api/payload-jobs/run?queue=default&limit=10'
+        const run = async () => {
+          try {
+            const res = await fetch(url, { headers: { authorization: `Bearer $${process.env.CRON_SECRET}` } })
+            if (!res.ok) console.log(`cron: job run failed, HTTP $${res.status}`)
+          } catch (err) {
+            console.log(`cron: job run failed, $${err.message}`)
+          }
+        }
+        const every = 5 * 60 * 1000
+        const next = () => setTimeout(() => run().finally(next), every - (Date.now() % every))
+        console.log('cron: running the job queue every 5 minutes')
+        next()
+    depends_on:
+      - web
     logging:
       driver: json-file
       options: { max-size: 10m, max-file: '5' }
