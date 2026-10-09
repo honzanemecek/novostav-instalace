@@ -148,11 +148,12 @@ docker exec "$pg" rm -f /tmp/neon.dump /tmp/neon.list
 echo "restored"
 
 step "Comparing row counts"
-# Builds one query that counts every table in public, then runs it.
+# Builds one query that counts every table in public, then runs it. Sorted in
+# the C collation: Neon's default collation orders names differently.
 count_sql=$(cat <<'SQL'
 select 'select t, n from (' ||
   string_agg(format('select %L as t, count(*) as n from public.%I', tablename, tablename), ' union all ') ||
-  ') counts order by t'
+  ') counts order by t collate "C"'
 from pg_tables where schemaname = 'public'
 SQL
 )
@@ -267,6 +268,9 @@ process.exit(failed ? 1 : 0)
 JS
 
 step "Checking that every file the media table names is on disk"
+# Every blob was downloaded (the step above fails otherwise), so a file still
+# missing here was never in Vercel Blob: already broken on the old site. Seen:
+# an SVG that replaced a photo keeps the photo's old size names.
 media_cols=$(target -Atc "select string_agg(quote_ident(column_name), ', ') from information_schema.columns
   where table_schema = 'public' and table_name = 'media'
     and (column_name = 'filename' or column_name like 'sizes\_%\_filename')")
@@ -278,7 +282,7 @@ target -Atc "select f from public.media, unnest(array[$media_cols]) as f where f
       [ -f "$MEDIA_DIR/$f" ] || { echo "missing: $f"; missing=$((missing + 1)); }
     done
     echo "$total files referenced, $missing missing"
-    [ "$missing" -eq 0 ]'
+    [ "$missing" -eq 0 ] || echo "WARNING: the missing files are not in Vercel Blob either (see above)."'
 
 step "Starting the web container"
 docker start "$web" >/dev/null
